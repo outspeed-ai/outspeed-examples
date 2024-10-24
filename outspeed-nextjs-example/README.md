@@ -1,3 +1,10 @@
+# Setup
+
+```
+npm i # install the packages
+```
+
+
 # Key points
 
 1. First we need to setup tailwind correctly.

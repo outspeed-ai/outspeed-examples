@@ -1,5 +1,4 @@
 "use client";
-import clsx from "clsx";
 import { AudioLinesIcon, VideoIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -61,11 +60,10 @@ export function RealtimeExamples() {
       <div className="flex flex-wrap gap-4 flex-col md:flex-row">
         {data.map((item) => (
           <div
-            className={clsx(
-              "border flex-1 p-4 rounded cursor-pointer hover:bg-accent hover:border-transparent md:max-w-[250px] md:flex-auto",
-              searchParams.get("query") === item.query &&
-                "border-primary hover:!border-primary"
-            )}
+            className={
+              `border flex-1 p-4 rounded cursor-pointer hover:bg-accent hover:border-transparent md:max-w-[250px] md:flex-auto
+              ${searchParams.get("query") === item.query && "border-primary hover:!border-primary"}`
+            }
             key={item.title}
             onClick={() => push(`?query=${item.query}`)}
           >

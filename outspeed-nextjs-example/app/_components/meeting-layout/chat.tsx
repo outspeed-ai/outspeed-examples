@@ -1,6 +1,5 @@
 import { DataChannel } from "@outspeed/core";
 import { RealtimeChat } from "@outspeed/react";
-import clsx from "clsx";
 import React from "react";
 
 export type TChatProps = {
@@ -34,10 +33,10 @@ export function Chat(props: TChatProps) {
   return (
     <div
       ref={chatContainerRef}
-      className={clsx(
-        "overflow-hidden transition-all self-end right-0 hidden sm:flex",
-        isOpen ? "w-[350px] ml-6 opacity-100" : "opacity-0 w-0"
-      )}
+      className={
+        `overflow-hidden transition-all self-end right-0 hidden sm:flex
+        ${isOpen ? "w-[350px] ml-6 opacity-100" : "opacity-0 w-0"}`
+      }
     >
       <div className="w-full h-full flex">
         <RealtimeChat
