@@ -2,6 +2,7 @@
 
 ```
 npm i # install the packages
+npm run dev # run
 ```
 
 
