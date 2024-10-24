@@ -6,6 +6,7 @@ const OutspeedUI = ({ connection }) => {
     <RealtimeAudio track={connection.getRemoteAudioTrack()} />
     <button onClick={() => connection.getLocalAudioTrack().pause()}>mute</button>
     <button onClick={() => connection.getLocalAudioTrack().resume()}>unmute</button>
+    <button onClick={() => connection.dataChannel.send("hello")}>send message </button>
     </>)
 }
 
