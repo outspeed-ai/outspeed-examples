@@ -6,7 +6,7 @@ import {
 } from "@outspeed/react";
 import { ConsoleLogger, createConfig } from "@outspeed/core";
 
-const OutspeedUI = ({ connection }) => {
+const OutspeedUI = ({ connection }: { connection: any }) => {
   return (
     <>
       <RealtimeAudio track={connection.getRemoteAudioTrack()} />
@@ -35,11 +35,16 @@ export default function Page() {
   });
 
   const connectToOutspeed = () => {
+    console.log("connecting");
     connection.connect();
+    console.log("connected");
   };
 
   const disconnectFromOutspeed = () => {
+    console.log("disconnecting");
     connection.disconnect();
+    console.log("disconnected");
+    window.location.reload();
   };
 
   return (
