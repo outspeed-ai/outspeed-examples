@@ -3,9 +3,10 @@ import {
   RealtimeAudio,
   useWebRTC,
   RealtimeAudioVisualizer,
+  ERealtimeConnectionStatus,
+  createConfig,
 } from "@outspeed/react";
-import { createConfig } from "@outspeed/core";
-import { ERealtimeConnectionStatus } from "@outspeed/react";
+
 const OutspeedUI = ({ connection }: { connection: any }) => {
   const remoteAudioTrack = connection.remoteAudioTrack;
   return (
