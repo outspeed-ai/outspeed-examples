@@ -4,17 +4,15 @@ import {
   useWebRTC,
   RealtimeAudioVisualizer,
 } from "@outspeed/react";
-import { ConsoleLogger, createConfig } from "@outspeed/core";
-
+import { createConfig } from "@outspeed/core";
+import { ERealtimeConnectionStatus } from "@outspeed/react";
 const OutspeedUI = ({ connection }: { connection: any }) => {
-  const remoteAudioTrack = connection.getRemoteAudioTrack();
+  const remoteAudioTrack = connection.remoteAudioTrack;
   return (
     <>
       <RealtimeAudio track={remoteAudioTrack} />
-      <button onClick={() => connection.getLocalAudioTrack().pause()}>
-        mute
-      </button>
-      <button onClick={() => connection.getLocalAudioTrack().resume()}>
+      <button onClick={() => connection.localAudioTrack?.pause()}>mute</button>
+      <button onClick={() => connection.localAudioTrack?.resume()}>
         unmute
       </button>
       <button onClick={() => connection.dataChannel.send("hello")}>
@@ -57,12 +55,13 @@ export default function Page() {
     <div>
       <h1>Hello, Next.js!</h1>
       <div>
-        {connection.connectionStatus === "Connected" ? (
+        {connection.connectionStatus === ERealtimeConnectionStatus.Connected ? (
           <button onClick={disconnectFromOutspeed}>Disconnect</button>
         ) : (
           <button onClick={connectToOutspeed}>Connect</button>
         )}
-        {connection.connectionStatus === "Connected" && (
+        {connection.connectionStatus ===
+          ERealtimeConnectionStatus.Connected && (
           <OutspeedUI connection={connection} />
         )}
       </div>
