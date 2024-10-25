@@ -1,15 +1,16 @@
 "use client";
 import {
   RealtimeAudio,
-  RealtimeAudioVisualizer,
   useWebRTC,
+  RealtimeAudioVisualizer,
 } from "@outspeed/react";
 import { ConsoleLogger, createConfig } from "@outspeed/core";
 
 const OutspeedUI = ({ connection }: { connection: any }) => {
+  const remoteAudioTrack = connection.getRemoteAudioTrack();
   return (
     <>
-      <RealtimeAudio track={connection.getRemoteAudioTrack()} />
+      <RealtimeAudio track={remoteAudioTrack} />
       <button onClick={() => connection.getLocalAudioTrack().pause()}>
         mute
       </button>
@@ -19,6 +20,11 @@ const OutspeedUI = ({ connection }: { connection: any }) => {
       <button onClick={() => connection.dataChannel.send("hello")}>
         send message{" "}
       </button>
+      {remoteAudioTrack && (
+        <div style={{ height: "16rem", width: "16rem" }}>
+          <RealtimeAudioVisualizer track={remoteAudioTrack} threshold={120} />
+        </div>
+      )}
     </>
   );
 };
