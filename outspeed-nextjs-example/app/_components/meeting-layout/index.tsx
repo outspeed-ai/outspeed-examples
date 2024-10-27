@@ -1,11 +1,11 @@
-import { Track } from "@outspeed/core";
+import { Track } from "@outspeed/react";
 import { Mic, MicOff, Video, VideoOff } from "lucide-react";
 import { VideContainer } from "./video-container";
 import { MediaAction } from "./media-action";
 import { ChatAction } from "./chat-action";
 import { DisconnectAction } from "./disconnect-action";
 import { Clock } from "./clock";
-import { DataChannel } from "@outspeed/core";
+import { DataChannel } from "@outspeed/react";
 import React from "react";
 import { RealtimeAudio } from "@outspeed/react";
 import { AudioVisualizerContainer } from "./audio-visualzier-container";

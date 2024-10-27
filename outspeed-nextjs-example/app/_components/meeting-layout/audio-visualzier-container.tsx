@@ -1,5 +1,5 @@
 import { RealtimeAudioVisualizer } from "@outspeed/react";
-import { Track } from "@outspeed/core";
+import { Track } from "@outspeed/react";
 import { MediaAction } from "./media-action";
 import { Mic, MicOff } from "lucide-react";
 

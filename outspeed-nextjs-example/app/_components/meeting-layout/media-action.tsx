@@ -1,5 +1,5 @@
 import React from "react";
-import { Track } from "@outspeed/core";
+import { Track } from "@outspeed/react";
 import { LucideProps } from "lucide-react";
 
 export type TMediaActionProps = {

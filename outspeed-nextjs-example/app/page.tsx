@@ -1,8 +1,7 @@
 "use client";
 import Image from "next/image";
-import { RealtimeExamples } from "../_components/RealtimeExamples";
-import { Inputs } from "./inputs";
 import { useRouter } from "next/navigation";
+import { WebRTCTakeInput } from "./WebRTCTakeInput";
 
 export default function LandingPage() {
   const { push } = useRouter();
@@ -19,7 +18,6 @@ export default function LandingPage() {
     const sp = new URLSearchParams();
     sp.set("functionURL", functionURL);
     sp.set("audioDeviceId", audioDeviceId || "not-set");
-    sp.set("videoDeviceId", videoDeviceId || "not-set");
     push(`${targetURL}?${sp.toString()}`);
   }
 
@@ -39,19 +37,6 @@ export default function LandingPage() {
               />
             </a>
           </div>
-          {/* Description */}
-          <div className="mt-10 text-[#999] pr-10">
-            <p>
-              Outspeed offers networking and inference infrastructure for
-              building fast, real-time voice and video AI applications.
-            </p>
-            <br />
-            <p>
-              Choose an example from the list below, update the input form on
-              the right, and click {'"Run"'} to see it in action.
-            </p>
-          </div>
-          <RealtimeExamples />
         </div>
       </div>
       <div className="flex-1 flex w-full justify-center md:justify-start bg-background">
@@ -59,7 +44,7 @@ export default function LandingPage() {
           <div className="mb-4 p-4 text-red-500 text-lg border border-red-500 rounded">
             Please ensure that the app is running and Function URL is correct.
           </div>
-          <Inputs onSubmit={onSubmit} />
+          <WebRTCTakeInput onSubmit={(config) => onSubmit(config, "/webrtc")} />{" "}
         </div>
       </div>
     </div>

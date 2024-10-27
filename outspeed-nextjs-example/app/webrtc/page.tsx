@@ -1,53 +1,43 @@
 "use client";
-import React, { useCallback, useEffect, useRef } from "react";
-import { useWebSocket } from "@outspeed/react";
+import React from "react";
+import { useWebRTC } from "@outspeed/react";
 import { Loader2 } from "lucide-react";
-import { ConsoleLogger } from "@outspeed/core";
-import { TRealtimeWebSocketConfig } from "@outspeed/core";
-import { MeetingLayout } from "../../_components/meeting-layout";
+import { ConsoleLogger, createConfig } from "@outspeed/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { MeetingLayout } from "../../_components/meeting-layout";
 
-export default function WebSocketRealtimeApp() {
+export default function WebRTCApp() {
   const searchparams = useSearchParams();
-  const connectionInitiated = useRef(false);
-  const {
-    connect,
-    response,
-    disconnect,
-    getRemoteAudioTrack,
-    getLocalAudioTrack,
-    dataChannel,
-    connectionStatus,
-  } = useWebSocket({
-    config: {
-      functionURL: searchparams.get("functionURL") || "",
-      audio: {
-        deviceId: searchparams.get("audioDeviceId") || "",
-        echoCancellation: true,
-      },
-      logger: ConsoleLogger.getLogger(),
-    } as TRealtimeWebSocketConfig,
-  });
-
   const { push } = useRouter();
 
-  useEffect(() => {
-    if (!connectionInitiated.current) {
-      connectionInitiated.current = true;
-      connect();
-    }
+  const {
+    connectionStatus,
+    response,
+    connect,
+    disconnect,
+    localAudioTrack,
+    localVideoTrack,
+    remoteAudioTrack,
+    remoteVideoTrack,
+    dataChannel,
+  } = useWebRTC({
+    config: createConfig({
+      functionURL: searchparams.get("functionURL") || "",
+      audioDeviceId: searchparams.get("audioDeviceId") || undefined,
+      logger: ConsoleLogger.getLogger(),
+    }),
+  });
+
+  React.useEffect(() => {
+    connect();
   }, [connect]);
 
-  const onDisconnect = useCallback(() => {
-    push("/?query=websocket");
-  }, [push]);
-
-  const handleDisconnect = React.useCallback(() => {
+  function handleDisconnect() {
     disconnect();
-    onDisconnect();
-  }, [disconnect, onDisconnect]);
+    push("/?query=webrtc");
+  }
 
-  if (connectionStatus === "connecting") {
+  if (connectionStatus === "Connecting") {
     return (
       <div className="h-full flex flex-1 justify-center items-center">
         <Loader2 size={48} className="animate-spin" />
@@ -55,7 +45,7 @@ export default function WebSocketRealtimeApp() {
     );
   }
 
-  if (connectionStatus === "failed") {
+  if (connectionStatus === "Failed") {
     return (
       <div className="h-full flex flex-1 justify-center items-center">
         <div className="flex items-center space-y-4 flex-col">
@@ -87,12 +77,12 @@ export default function WebSocketRealtimeApp() {
     <div className="h-full flex flex-1">
       <div className="flex-1 flex">
         <MeetingLayout
-          title="WebSocket Example"
+          title="WebRTC Example"
           onCallEndClick={handleDisconnect}
-          localTrack={null}
-          remoteTrack={null}
-          localAudioTrack={getLocalAudioTrack()}
-          remoteAudioTrack={getRemoteAudioTrack()}
+          localTrack={localVideoTrack}
+          remoteTrack={remoteVideoTrack}
+          localAudioTrack={localAudioTrack}
+          remoteAudioTrack={remoteAudioTrack}
           dataChannel={dataChannel}
         />
       </div>
