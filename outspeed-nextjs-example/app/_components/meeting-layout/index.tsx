@@ -1,10 +1,8 @@
 import { Track } from "@outspeed/react";
 import { Mic, MicOff, Video, VideoOff } from "lucide-react";
-import { VideContainer } from "./video-container";
 import { MediaAction } from "./media-action";
 import { ChatAction } from "./chat-action";
 import { DisconnectAction } from "./disconnect-action";
-import { Clock } from "./clock";
 import { DataChannel } from "@outspeed/react";
 import React from "react";
 import { RealtimeAudio } from "@outspeed/react";
@@ -58,13 +56,6 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
       {/* Video section */}
       <div className="flex-1 items-center flex py-4" ref={container}>
         <div className="flex-1 justify-center overflow-hidden flex flex-col space-y-6 sm:flex-row sm:space-x-6 sm:space-y-0">
-          {remoteTrack && (
-            <VideContainer
-              track={remoteTrack}
-              label="Outspeed"
-              hasControls={{ audio: remoteAudioTrack }}
-            />
-          )}
           {!remoteTrack && (
             <>
               <AudioVisualizerContainer
@@ -76,7 +67,6 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
               <RealtimeAudio track={remoteAudioTrack} />
             </>
           )}
-          {localTrack && <VideContainer track={localTrack} label="You" />}
           {!localTrack && (
             <AudioVisualizerContainer
               track={localAudioTrack}
@@ -97,11 +87,7 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
       {/* Call Section */}
       <div className="pb-4 flex">
         <div className="flex flex-1 p-4 rounded-md">
-          <div className="flex-1 justify-start items-center space-x-4 hidden sm:flex">
-            <div className="uppercase font-bold">
-              <Clock />
-            </div>
-          </div>
+          <div className="flex-1 justify-start items-center space-x-4 hidden sm:flex"></div>
           <div className="flex flex-1 space-x-4 justify-center">
             <DisconnectAction onClick={onCallEndClick} />
             <MediaAction track={localAudioTrack} On={Mic} Off={MicOff} />

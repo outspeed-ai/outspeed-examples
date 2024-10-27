@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { WebRTCTakeInput } from "./WebRTCTakeInput";
+import { WebRTCTakeInput } from "./_components/WebRTCTakeInput";
 
 export default function LandingPage() {
   const { push } = useRouter();

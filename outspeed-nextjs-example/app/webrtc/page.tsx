@@ -4,7 +4,7 @@ import { useWebRTC } from "@outspeed/react";
 import { Loader2 } from "lucide-react";
 import { ConsoleLogger, createConfig } from "@outspeed/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MeetingLayout } from "../../_components/meeting-layout";
+import { MeetingLayout } from "../_components/meeting-layout";
 
 export default function WebRTCApp() {
   const searchparams = useSearchParams();
