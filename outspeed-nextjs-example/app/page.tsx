@@ -11,7 +11,6 @@ export default function LandingPage() {
     config: {
       functionURL: string;
       audioDeviceId?: string;
-      videoDeviceId?: string;
     },
     targetURL: string
   ) {
