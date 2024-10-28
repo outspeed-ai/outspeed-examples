@@ -60,32 +60,39 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
 
   return (
     <div className="flex flex-col flex-1 relative max-w-[calc(100vw-32px)]">
-      {/* Video section */}
-      <div className="flex-1 items-center flex py-4" ref={container}>
-        <div className="flex-1 justify-center overflow-hidden flex flex-col space-y-6 sm:flex-row sm:space-x-6 sm:space-y-0">
+      {/* Video and Chat Section */}
+      <div
+        className="flex-1 flex flex-col sm:flex-row items-center py-4"
+        ref={container}
+      >
+        <div className="flex-1 flex flex-col sm:flex-row justify-center items-center space-y-6 sm:space-y-0 sm:space-x-6 w-full">
+          {/* Realtime Audio Visualizer */}
           {!remoteTrack && (
-            <>
-              <div style={{ height: "32rem", width: "32rem" }}>
+            <div className="flex-1 flex flex-col items-center">
+              <div className="w-full h-32">
                 <RealtimeAudioVisualizer
                   track={remoteAudioTrack}
                   threshold={120}
                 />
               </div>
               <RealtimeAudio track={remoteAudioTrack} />
-            </>
+            </div>
           )}
           {!localTrack && (
-            <div style={{ height: "32rem", width: "32rem" }}>
-              <RealtimeAudioVisualizer
-                track={localAudioTrack}
-                threshold={250}
-              />
+            <div className="flex-1 flex flex-col items-center">
+              <div className="w-full h-32">
+                <RealtimeAudioVisualizer
+                  track={localAudioTrack}
+                  threshold={250}
+                />
+              </div>
             </div>
           )}
         </div>
-        {dataChannel && (
+        {/* Realtime Chat */}
+        {dataChannel && isChatOpened && (
           <div
-            className={`overflow-hidden transition-all self-end right-0 hidden sm:flex w-[350px] ml-6 opacity-100`}
+            className="flex-1 overflow-hidden transition-all self-start sm:flex w-full sm:w-1/3 ml-0 sm:ml-6 opacity-100"
             style={{ height: `${window.innerHeight - 225}px` }}
           >
             <div className="w-full h-full flex">
@@ -108,13 +115,13 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
           <div className="flex-1 justify-start items-center space-x-4 hidden sm:flex"></div>
           <div className="flex flex-1 space-x-4 justify-center items-center">
             <button
-              className="rounded-full w-12 h-12 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white transition-colors duration-300"
+              className="rounded-md px-4 py-2 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white transition-colors duration-300 border border-red-700"
               onClick={onCallEndClick}
             >
               <span className="text-sm">Disconnect</span>
             </button>
             <button
-              className="rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white transition-colors duration-300"
+              className="rounded-md px-4 py-2 flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white transition-colors duration-300 border border-blue-700"
               onClick={handleOnToggle}
             >
               <span className="text-sm">{isEnabled ? "Mute" : "Unmute"}</span>
