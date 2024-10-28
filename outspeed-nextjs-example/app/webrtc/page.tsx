@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { useWebRTC } from "@outspeed/react";
-import { Loader2 } from "lucide-react";
 import { ConsoleLogger, createConfig } from "@outspeed/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MeetingLayout } from "../_components/meeting-layout";
@@ -40,7 +39,7 @@ export default function WebRTCApp() {
   if (connectionStatus === "Connecting") {
     return (
       <div className="h-full flex flex-1 justify-center items-center">
-        <Loader2 size={48} className="animate-spin" />
+        Loading...
       </div>
     );
   }

@@ -1,7 +1,4 @@
 import { RealtimeAudioVisualizer, Track } from "@outspeed/react";
-import { Mic, MicOff, Video, VideoOff } from "lucide-react";
-import { MediaAction } from "./media-action";
-import { DisconnectAction } from "./disconnect-action";
 import { DataChannel } from "@outspeed/react";
 import React from "react";
 import { RealtimeAudio } from "@outspeed/react";
@@ -27,6 +24,7 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
     dataChannel,
     title,
   } = props;
+  const [isEnabled, setIsEnabled] = React.useState(true);
 
   const [isChatOpened, setIsChatOpened] = React.useState(true);
   const container = React.useRef<HTMLDivElement>(null);
@@ -39,6 +37,18 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
 
     container.current.style.maxWidth = parent.clientWidth + "px";
   }, []);
+
+  function handleOnToggle() {
+    if (!localAudioTrack) return;
+
+    if (localAudioTrack.isMute()) {
+      localAudioTrack.resume();
+    } else {
+      localAudioTrack.pause();
+    }
+
+    setIsEnabled((prevState) => !prevState);
+  }
 
   React.useEffect(() => {
     handleResize();
@@ -88,8 +98,12 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
         <div className="flex flex-1 p-4 rounded-md">
           <div className="flex-1 justify-start items-center space-x-4 hidden sm:flex"></div>
           <div className="flex flex-1 space-x-4 justify-center">
-            <DisconnectAction onClick={onCallEndClick} />
-            <MediaAction track={localAudioTrack} On={Mic} Off={MicOff} />
+            <button className="rounded-full w-10 h-10" onClick={onCallEndClick}>
+              <span className="h-5 w-5">Disconnect</span>
+            </button>
+            <button className="rounded-full w-10 h-10" onClick={handleOnToggle}>
+              {isEnabled ? "Mute" : "Unmute"}
+            </button>
           </div>
           <div className="flex-1 justify-end items-center hidden sm:flex">
             <span className="font-bold text-muted">{title}</span>
