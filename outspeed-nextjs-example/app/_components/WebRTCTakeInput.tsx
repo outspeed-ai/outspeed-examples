@@ -2,9 +2,9 @@ import React from "react";
 import {
   RealtimeFunctionURLInput,
   RealtimeAudioInput,
-  RealtimeVideoInput,
   RealtimeFormButton,
 } from "@outspeed/react";
+import { useSearchParams } from "next/navigation";
 
 export type TWebRTCTakeInputProps = {
   onSubmit: (config: {
@@ -18,7 +18,7 @@ export function WebRTCTakeInput(props: TWebRTCTakeInputProps) {
   const { onSubmit } = props;
   const [audioDeviceId, setAudioDeviceId] = React.useState("");
   const [videoDeviceId, setVideoDeviceId] = React.useState("");
-  const queryParams = new URLSearchParams(location.search);
+  const queryParams = useSearchParams();
   const initialFunctionURL =
     queryParams.get("functionURL") || "http://localhost:8080";
   const [functionURL, setFunctionURL] = React.useState(initialFunctionURL);
@@ -58,7 +58,6 @@ export function WebRTCTakeInput(props: TWebRTCTakeInputProps) {
       const config = {
         functionURL,
         audioDeviceId,
-        videoDeviceId,
       };
       onSubmit(config);
     } catch (error) {
@@ -84,15 +83,6 @@ export function WebRTCTakeInput(props: TWebRTCTakeInputProps) {
         value={audioDeviceId}
         onChange={(value) => handleOnMediaInputChange("audio", value)}
         description="Select the microphone you want to use. If you don't see your microphone, make sure it is plugged in."
-        errorMsg={
-          isMediaMissing ? "Either audio or video input is required." : ""
-        }
-      />
-      <RealtimeVideoInput
-        isError={isMediaMissing}
-        value={videoDeviceId}
-        onChange={(value) => handleOnMediaInputChange("video", value)}
-        description="Select the camera you want to use. If you don't see your camera, make sure it is plugged in."
         errorMsg={
           isMediaMissing ? "Either audio or video input is required." : ""
         }
