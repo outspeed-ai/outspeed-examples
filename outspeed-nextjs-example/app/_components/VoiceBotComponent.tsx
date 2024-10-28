@@ -45,7 +45,7 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
         <div className="flex-1 flex flex-col sm:flex-row justify-between items-stretch w-full space-y-6 sm:space-y-0 sm:space-x-6">
           {!remoteTrack && (
             <div className="flex-1 flex flex-col items-center border border-gray-300 p-4">
-              <div className="w-full h-full">
+              <div className="w-1/2 h-full">
                 <RealtimeAudioVisualizer
                   track={remoteAudioTrack}
                   threshold={120}
@@ -59,7 +59,7 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
         {/* Realtime Chat Section */}
         {dataChannel && (
           <div
-            className="flex-1 sm:w-1/3 flex flex-col h-full"
+            className="flex-1 flex flex-col h-full w-1/2"
             style={{ height: `${window.innerHeight - 225}px` }}
           >
             <RealtimeChat
