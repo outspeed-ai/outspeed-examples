@@ -25,18 +25,6 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
   } = props;
   const [isEnabled, setIsEnabled] = React.useState(true);
 
-  const [isChatOpened, setIsChatOpened] = React.useState(true);
-  const container = React.useRef<HTMLDivElement>(null);
-
-  const handleResize = React.useCallback(() => {
-    if (!container.current) return;
-
-    const parent = container.current.parentElement;
-    if (!parent) return;
-
-    container.current.style.maxWidth = parent.clientWidth + "px";
-  }, []);
-
   function handleOnToggle() {
     if (!localAudioTrack) return;
 
@@ -49,27 +37,15 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
     setIsEnabled((prevState) => !prevState);
   }
 
-  React.useEffect(() => {
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [handleResize]);
-
   return (
-    <div className="flex flex-col flex-1 relative max-w-[calc(100vw-32px)]">
+    <div className="flex flex-col flex-1 relative max-w-[calc(100vw-32px)] h-full">
       {/* Video and Chat Section */}
-      <div
-        className="flex-1 flex flex-col sm:flex-row items-center py-4"
-        ref={container}
-      >
-        <div className="flex-1 flex flex-col sm:flex-row justify-center items-center space-y-6 sm:space-y-0 sm:space-x-6 w-full">
-          {/* Realtime Audio Visualizer */}
+      <div className="flex-1 flex flex-col sm:flex-row items-stretch py-4 space-y-6 sm:space-y-0 sm:space-x-6">
+        {/* Realtime Audio Visualizer Section */}
+        <div className="flex-1 flex flex-col sm:flex-row justify-between items-stretch w-full space-y-6 sm:space-y-0 sm:space-x-6">
           {!remoteTrack && (
-            <div className="flex-1 flex flex-col items-center">
-              <div className="w-full h-32">
+            <div className="flex-1 flex flex-col items-center border border-gray-300 p-4">
+              <div className="w-full h-full">
                 <RealtimeAudioVisualizer
                   track={remoteAudioTrack}
                   threshold={120}
@@ -78,33 +54,21 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
               <RealtimeAudio track={remoteAudioTrack} />
             </div>
           )}
-          {!localTrack && (
-            <div className="flex-1 flex flex-col items-center">
-              <div className="w-full h-32">
-                <RealtimeAudioVisualizer
-                  track={localAudioTrack}
-                  threshold={250}
-                />
-              </div>
-            </div>
-          )}
         </div>
-        {/* Realtime Chat */}
-        {dataChannel && isChatOpened && (
+
+        {/* Realtime Chat Section */}
+        {dataChannel && (
           <div
-            className="flex-1 overflow-hidden transition-all self-start sm:flex w-full sm:w-1/3 ml-0 sm:ml-6 opacity-100"
+            className="flex-1 sm:w-1/3 flex flex-col h-full"
             style={{ height: `${window.innerHeight - 225}px` }}
           >
-            <div className="w-full h-full flex">
-              <RealtimeChat
-                onCloseButtonClick={() => setIsChatOpened(false)}
-                userLabel="You"
-                avatarLabel="Outspeed"
-                heading="Messages"
-                dataChannel={dataChannel}
-                noMessage="Your conversation will appear here."
-              />
-            </div>
+            <RealtimeChat
+              userLabel="You"
+              avatarLabel="Outspeed"
+              heading="Messages"
+              dataChannel={dataChannel}
+              noMessage="Your conversation will appear here."
+            />
           </div>
         )}
       </div>
