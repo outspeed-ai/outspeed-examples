@@ -6,9 +6,25 @@ import {
   ERealtimeConnectionStatus,
   createConfig,
 } from "@outspeed/react";
+import { useEffect, useState } from "react";
+
+const onMessage = (msg: any) => {
+  console.log(msg)
+}
 
 const OutspeedUI = ({ connection }: { connection: any }) => {
   const remoteAudioTrack = connection.remoteAudioTrack;
+  const [jsonPayload, setJsonPayload] = useState("")
+
+  useEffect(() => {
+      if (connection && connection.dataChannel) {
+        connection.dataChannel.addEventListener("message", onMessage);
+        return () => {
+          connection.dataChannel.removeEventListener("message", onMessage);
+        };
+      }
+    }, [connection.dataChannel])
+
   return (
     <>
       <RealtimeAudio track={remoteAudioTrack} />
@@ -17,11 +33,28 @@ const OutspeedUI = ({ connection }: { connection: any }) => {
         unmute
       </button>
       <button onClick={() => connection.dataChannel.send("hello")}>
-        send message{" "}
+        send message
       </button>
+      <textarea 
+        onChange={(e) => {
+            // Attempt to parse as JSON to validate
+            setJsonPayload(e.target.value)
+        }}
+        placeholder="Enter JSON to send..."
+      ></textarea>
+      <button onClick={() => {
+          try {
+            let payload = JSON.parse(jsonPayload);
+            // If valid JSON, send via data channel
+            connection.dataChannel.send(payload);
+          } catch (err) {
+            // Invalid JSON, don't send
+            console.error('Invalid JSON input');
+          }
+      }}>Send Json</button>
       {remoteAudioTrack && (
         <div style={{ height: "16rem", width: "16rem" }}>
-          <RealtimeAudioVisualizer track={remoteAudioTrack} threshold={120} />
+          <RealtimeAudioVisualizer track={connection.localAudioTrack} threshold={120} />
         </div>
       )}
     </>
@@ -31,8 +64,10 @@ const OutspeedUI = ({ connection }: { connection: any }) => {
 export default function Page() {
   const connection = useWebRTC({
     config: createConfig({
-      functionURL: "http://0.0.0.0:8080",
+      functionURL: "http://localhost:8080",
       audioDeviceId: "",
+      audioCodec: "opus/48000/2",
+      dataChannelOptions: {},
       audioConstraints: {
         echoCancellation: true,
       },
