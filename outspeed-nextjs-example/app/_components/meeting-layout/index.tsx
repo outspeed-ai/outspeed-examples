@@ -1,12 +1,10 @@
-import { Track } from "@outspeed/react";
+import { RealtimeAudioVisualizer, Track } from "@outspeed/react";
 import { Mic, MicOff, Video, VideoOff } from "lucide-react";
 import { MediaAction } from "./media-action";
-import { ChatAction } from "./chat-action";
 import { DisconnectAction } from "./disconnect-action";
 import { DataChannel } from "@outspeed/react";
 import React from "react";
 import { RealtimeAudio } from "@outspeed/react";
-import { AudioVisualizerContainer } from "./audio-visualzier-container";
 import { Chat } from "./chat";
 
 export type TMeetingLayoutProps = {
@@ -30,7 +28,7 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
     title,
   } = props;
 
-  const [isChatOpened, setIsChatOpened] = React.useState(false);
+  const [isChatOpened, setIsChatOpened] = React.useState(true);
   const container = React.useRef<HTMLDivElement>(null);
 
   const handleResize = React.useCallback(() => {
@@ -58,21 +56,22 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
         <div className="flex-1 justify-center overflow-hidden flex flex-col space-y-6 sm:flex-row sm:space-x-6 sm:space-y-0">
           {!remoteTrack && (
             <>
-              <AudioVisualizerContainer
-                track={remoteAudioTrack}
-                label="Outspeed"
-                hasControls
-                threshold={120}
-              />
+              <div style={{ height: "16rem", width: "16rem" }}>
+                <RealtimeAudioVisualizer
+                  track={remoteAudioTrack}
+                  threshold={120}
+                />
+              </div>
               <RealtimeAudio track={remoteAudioTrack} />
             </>
           )}
           {!localTrack && (
-            <AudioVisualizerContainer
-              track={localAudioTrack}
-              label="You"
-              threshold={250}
-            />
+            <div style={{ height: "16rem", width: "16rem" }}>
+              <RealtimeAudioVisualizer
+                track={localAudioTrack}
+                threshold={250}
+              />
+            </div>
           )}
         </div>
         {dataChannel && (
@@ -91,11 +90,6 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
           <div className="flex flex-1 space-x-4 justify-center">
             <DisconnectAction onClick={onCallEndClick} />
             <MediaAction track={localAudioTrack} On={Mic} Off={MicOff} />
-            <MediaAction track={localTrack} On={Video} Off={VideoOff} />
-            <ChatAction
-              isEnabled={isChatOpened}
-              setIsEnabled={setIsChatOpened}
-            />
           </div>
           <div className="flex-1 justify-end items-center hidden sm:flex">
             <span className="font-bold text-muted">{title}</span>
