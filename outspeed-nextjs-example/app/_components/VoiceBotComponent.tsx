@@ -65,7 +65,7 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
         <div className="flex-1 justify-center overflow-hidden flex flex-col space-y-6 sm:flex-row sm:space-x-6 sm:space-y-0">
           {!remoteTrack && (
             <>
-              <div style={{ height: "16rem", width: "16rem" }}>
+              <div style={{ height: "32rem", width: "32rem" }}>
                 <RealtimeAudioVisualizer
                   track={remoteAudioTrack}
                   threshold={120}
@@ -75,7 +75,7 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
             </>
           )}
           {!localTrack && (
-            <div style={{ height: "16rem", width: "16rem" }}>
+            <div style={{ height: "32rem", width: "32rem" }}>
               <RealtimeAudioVisualizer
                 track={localAudioTrack}
                 threshold={250}
@@ -106,12 +106,18 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
       <div className="pb-4 flex">
         <div className="flex flex-1 p-4 rounded-md">
           <div className="flex-1 justify-start items-center space-x-4 hidden sm:flex"></div>
-          <div className="flex flex-1 space-x-4 justify-center">
-            <button className="rounded-full w-10 h-10" onClick={onCallEndClick}>
-              <span className="h-5 w-5">Disconnect</span>
+          <div className="flex flex-1 space-x-4 justify-center items-center">
+            <button
+              className="rounded-full w-12 h-12 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white transition-colors duration-300"
+              onClick={onCallEndClick}
+            >
+              <span className="text-sm">Disconnect</span>
             </button>
-            <button className="rounded-full w-10 h-10" onClick={handleOnToggle}>
-              {isEnabled ? "Mute" : "Unmute"}
+            <button
+              className="rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white transition-colors duration-300"
+              onClick={handleOnToggle}
+            >
+              <span className="text-sm">{isEnabled ? "Mute" : "Unmute"}</span>
             </button>
           </div>
           <div className="flex-1 justify-end items-center hidden sm:flex">

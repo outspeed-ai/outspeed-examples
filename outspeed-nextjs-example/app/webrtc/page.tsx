@@ -3,7 +3,7 @@ import React from "react";
 import { useWebRTC } from "@outspeed/react";
 import { ConsoleLogger, createConfig } from "@outspeed/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MeetingLayout } from "../_components/meeting-layout";
+import { MeetingLayout } from "../_components/VoiceBotComponent";
 
 export default function WebRTCApp() {
   const searchparams = useSearchParams();
