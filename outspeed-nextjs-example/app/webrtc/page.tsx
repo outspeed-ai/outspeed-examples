@@ -1,11 +1,20 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { useWebRTC } from "@outspeed/react";
 import { ConsoleLogger, createConfig } from "@outspeed/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MeetingLayout } from "../_components/VoiceBotComponent";
+import { ERealtimeConnectionStatus } from "@outspeed/react";
 
 export default function WebRTCApp() {
+  return (
+    <Suspense fallback={<div>Loading search parameters...</div>}>
+      <WebRTCContent />
+    </Suspense>
+  );
+}
+
+function WebRTCContent() {
   const searchparams = useSearchParams();
   const { push } = useRouter();
 
@@ -36,7 +45,7 @@ export default function WebRTCApp() {
     push("/?query=webrtc");
   }
 
-  if (connectionStatus === "Connecting") {
+  if (connectionStatus === ERealtimeConnectionStatus.Connecting) {
     return (
       <div className="h-full flex flex-1 justify-center items-center">
         Loading...
@@ -44,7 +53,7 @@ export default function WebRTCApp() {
     );
   }
 
-  if (connectionStatus === "Failed") {
+  if (connectionStatus === ERealtimeConnectionStatus.Failed) {
     return (
       <div className="h-full flex flex-1 justify-center items-center">
         <div className="flex items-center space-y-4 flex-col">

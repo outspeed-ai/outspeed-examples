@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { WebRTCTakeInput } from "./_components/WebRTCTakeInput";
+import { Suspense } from "react";
 
 export default function LandingPage() {
   const { push } = useRouter();
@@ -14,7 +15,7 @@ export default function LandingPage() {
     },
     targetURL: string
   ) {
-    const { functionURL, audioDeviceId, videoDeviceId } = config;
+    const { functionURL, audioDeviceId } = config;
     const sp = new URLSearchParams();
     sp.set("functionURL", functionURL);
     sp.set("audioDeviceId", audioDeviceId || "not-set");
@@ -40,9 +41,11 @@ export default function LandingPage() {
             <div className="mb-4 p-4 text-red-500 text-lg border border-red-500 rounded">
               Please ensure that the app is running and Function URL is correct.
             </div>
-            <WebRTCTakeInput
-              onSubmit={(config) => onSubmit(config, "/webrtc")}
-            />
+            <Suspense fallback={<div>Loading search parameters...</div>}>
+              <WebRTCTakeInput
+                onSubmit={(config) => onSubmit(config, "/webrtc")}
+              />
+            </Suspense>
           </div>
         </div>
       </div>

@@ -15,7 +15,6 @@ export type TMeetingLayoutProps = {
 
 export function MeetingLayout(props: TMeetingLayoutProps) {
   const {
-    localTrack,
     localAudioTrack,
     remoteAudioTrack,
     remoteTrack,

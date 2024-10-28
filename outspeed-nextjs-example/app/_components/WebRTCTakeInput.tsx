@@ -2,7 +2,6 @@ import React from "react";
 import {
   RealtimeFunctionURLInput,
   RealtimeAudioInput,
-  RealtimeVideoInput,
   RealtimeFormButton,
 } from "@outspeed/react";
 import { useSearchParams } from "next/navigation";
