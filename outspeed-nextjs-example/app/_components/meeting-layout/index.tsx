@@ -85,7 +85,8 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
         </div>
         {dataChannel && (
           <div
-            className={`overflow-hidden transition-all self-end right-0 hidden sm:flex "w-[350px] ml-6 opacity-100" : "opacity-0 w-0"}`}
+            className={`overflow-hidden transition-all self-end right-0 hidden sm:flex w-[350px] ml-6 opacity-100`}
+            style={{ height: `${window.innerHeight - 225}px` }}
           >
             <div className="w-full h-full flex">
               <RealtimeChat
