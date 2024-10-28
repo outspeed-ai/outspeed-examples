@@ -3,7 +3,7 @@ import { DataChannel } from "@outspeed/react";
 import React from "react";
 import { RealtimeAudio } from "@outspeed/react";
 
-export type TMeetingLayoutProps = {
+export type TVoiceBotComponentProps = {
   remoteTrack: Track | null;
   localTrack: Track | null;
   remoteAudioTrack: Track | null;
@@ -13,7 +13,7 @@ export type TMeetingLayoutProps = {
   title: string;
 };
 
-export function MeetingLayout(props: TMeetingLayoutProps) {
+export function VoiceBotComponent(props: TVoiceBotComponentProps) {
   const {
     localAudioTrack,
     remoteAudioTrack,

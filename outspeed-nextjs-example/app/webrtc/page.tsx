@@ -3,7 +3,7 @@ import React, { Suspense } from "react";
 import { useWebRTC } from "@outspeed/react";
 import { ConsoleLogger, createConfig } from "@outspeed/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MeetingLayout } from "../_components/VoiceBotComponent";
+import { VoiceBotComponent } from "../_components/VoiceBotComponent";
 import { ERealtimeConnectionStatus } from "@outspeed/react";
 
 export default function WebRTCApp() {
@@ -84,7 +84,7 @@ function WebRTCContent() {
   return (
     <div className="h-full flex flex-1">
       <div className="flex-1 flex">
-        <MeetingLayout
+        <VoiceBotComponent
           title="WebRTC Example"
           onCallEndClick={handleDisconnect}
           localTrack={localVideoTrack}
