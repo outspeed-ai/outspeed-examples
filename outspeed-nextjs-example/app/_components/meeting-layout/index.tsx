@@ -1,8 +1,7 @@
-import { RealtimeAudioVisualizer, Track } from "@outspeed/react";
+import { RealtimeAudioVisualizer, RealtimeChat, Track } from "@outspeed/react";
 import { DataChannel } from "@outspeed/react";
 import React from "react";
 import { RealtimeAudio } from "@outspeed/react";
-import { Chat } from "./chat";
 
 export type TMeetingLayoutProps = {
   remoteTrack: Track | null;
@@ -85,11 +84,20 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
           )}
         </div>
         {dataChannel && (
-          <Chat
-            onRequestClose={() => setIsChatOpened(false)}
-            dataChannel={dataChannel}
-            isOpen={isChatOpened}
-          />
+          <div
+            className={`overflow-hidden transition-all self-end right-0 hidden sm:flex "w-[350px] ml-6 opacity-100" : "opacity-0 w-0"}`}
+          >
+            <div className="w-full h-full flex">
+              <RealtimeChat
+                onCloseButtonClick={() => setIsChatOpened(false)}
+                userLabel="You"
+                avatarLabel="Outspeed"
+                heading="Messages"
+                dataChannel={dataChannel}
+                noMessage="Your conversation will appear here."
+              />
+            </div>
+          </div>
         )}
       </div>
 
