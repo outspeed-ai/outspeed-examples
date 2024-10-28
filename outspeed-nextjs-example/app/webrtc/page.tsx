@@ -32,6 +32,7 @@ function WebRTCContent() {
     config: createConfig({
       functionURL: searchparams.get("functionURL") || "",
       audioDeviceId: searchparams.get("audioDeviceId") || undefined,
+      audioCodec: searchparams.get("audioCodec") || "opus/48000/2",
       logger: ConsoleLogger.getLogger(),
     }),
   });
