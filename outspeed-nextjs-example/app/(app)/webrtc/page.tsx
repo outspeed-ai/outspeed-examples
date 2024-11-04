@@ -1,8 +1,12 @@
 "use client";
 import React from "react";
-import { useWebRTC } from "@outspeed/react";
+import {
+  useWebRTC,
+  ConsoleLogger,
+  createConfig,
+  ERealtimeConnectionStatus,
+} from "@outspeed/react";
 import { Loader2 } from "lucide-react";
-import { ConsoleLogger, createConfig } from "@outspeed/core";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MeetingLayout } from "../../_components/meeting-layout";
 
@@ -15,16 +19,15 @@ export default function WebRTCApp() {
     response,
     connect,
     disconnect,
-    getLocalAudioTrack,
-    getLocalVideoTrack,
-    getRemoteAudioTrack,
-    getRemoteVideoTrack,
+    localAudioTrack,
+    localVideoTrack,
+    remoteAudioTrack,
+    remoteVideoTrack,
     dataChannel,
   } = useWebRTC({
     config: createConfig({
       functionURL: searchparams.get("functionURL") || "",
       audioDeviceId: searchparams.get("audioDeviceId") || undefined,
-      videoDeviceId: searchparams.get("videoDeviceId") || undefined,
       logger: ConsoleLogger.getLogger(),
     }),
   });
@@ -38,7 +41,7 @@ export default function WebRTCApp() {
     push("/?query=webrtc");
   }
 
-  if (connectionStatus === "Connecting") {
+  if (connectionStatus === ERealtimeConnectionStatus.Connecting) {
     return (
       <div className="h-full flex flex-1 justify-center items-center">
         <Loader2 size={48} className="animate-spin" />
@@ -46,7 +49,7 @@ export default function WebRTCApp() {
     );
   }
 
-  if (connectionStatus === "Failed") {
+  if (connectionStatus === ERealtimeConnectionStatus.Failed) {
     return (
       <div className="h-full flex flex-1 justify-center items-center">
         <div className="flex items-center space-y-4 flex-col">
@@ -80,10 +83,10 @@ export default function WebRTCApp() {
         <MeetingLayout
           title="WebRTC Example"
           onCallEndClick={handleDisconnect}
-          localTrack={getLocalVideoTrack()}
-          remoteTrack={getRemoteVideoTrack()}
-          localAudioTrack={getLocalAudioTrack()}
-          remoteAudioTrack={getRemoteAudioTrack()}
+          localTrack={localVideoTrack}
+          remoteTrack={remoteVideoTrack}
+          localAudioTrack={localAudioTrack}
+          remoteAudioTrack={remoteAudioTrack}
           dataChannel={dataChannel}
         />
       </div>

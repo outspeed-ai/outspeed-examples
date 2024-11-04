@@ -2,8 +2,7 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import { useWebSocket } from "@outspeed/react";
 import { Loader2 } from "lucide-react";
-import { ConsoleLogger } from "@outspeed/core";
-import { TRealtimeWebSocketConfig } from "@outspeed/core";
+import { ConsoleLogger, ERealtimeConnectionStatus } from "@outspeed/react";
 import { MeetingLayout } from "../../_components/meeting-layout";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -14,8 +13,8 @@ export default function WebSocketRealtimeApp() {
     connect,
     response,
     disconnect,
-    getRemoteAudioTrack,
-    getLocalAudioTrack,
+    remoteAudioTrack,
+    localAudioTrack,
     dataChannel,
     connectionStatus,
   } = useWebSocket({
@@ -26,7 +25,7 @@ export default function WebSocketRealtimeApp() {
         echoCancellation: true,
       },
       logger: ConsoleLogger.getLogger(),
-    } as TRealtimeWebSocketConfig,
+    },
   });
 
   const { push } = useRouter();
@@ -47,7 +46,7 @@ export default function WebSocketRealtimeApp() {
     onDisconnect();
   }, [disconnect, onDisconnect]);
 
-  if (connectionStatus === "connecting") {
+  if (connectionStatus === ERealtimeConnectionStatus.Connecting) {
     return (
       <div className="h-full flex flex-1 justify-center items-center">
         <Loader2 size={48} className="animate-spin" />
@@ -55,7 +54,7 @@ export default function WebSocketRealtimeApp() {
     );
   }
 
-  if (connectionStatus === "failed") {
+  if (connectionStatus === ERealtimeConnectionStatus.Failed) {
     return (
       <div className="h-full flex flex-1 justify-center items-center">
         <div className="flex items-center space-y-4 flex-col">
@@ -91,8 +90,8 @@ export default function WebSocketRealtimeApp() {
           onCallEndClick={handleDisconnect}
           localTrack={null}
           remoteTrack={null}
-          localAudioTrack={getLocalAudioTrack()}
-          remoteAudioTrack={getRemoteAudioTrack()}
+          localAudioTrack={localAudioTrack}
+          remoteAudioTrack={remoteAudioTrack}
           dataChannel={dataChannel}
         />
       </div>
