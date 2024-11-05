@@ -2,6 +2,11 @@
 
 This project is a simple setup for a React application using Webpack and Babel. It demonstrates how to connect to Outspeed WebRTC or WebSocket backend. Follow the steps below to install dependencies and run the app.
 
+# ⚠️ Warning
+
+This application is only compatible with Google Chrome and Safari browsers. Other browsers may not fully support all features or may cause unexpected issues.
+
+
 ## Installation
 
 1. **Clone the repository**:
