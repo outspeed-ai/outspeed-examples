@@ -1,0 +1,172 @@
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Playground</title>
+  </head>
+
+  <body>
+    <a href="/">Back</a>
+    <h1>WebRTC App</h1>
+
+    <form action="#" onsubmit="setupConnection(event)">
+      <label>
+        Function URL
+        <input type="text" name="function-url" />
+      </label>
+      <label>Audio Devices
+        <select name="audio" id="audio-list"></select>
+      </label>
+      <label>Video Devices
+        <select name="video" id="video-list"></select>
+      </label>
+      <br />
+      <button>Connect</button>
+    </form>
+
+    <form onsubmit="disconnect(event)">
+      <button>Disconnect</button>
+    </form>
+    <div id="connection-status">Connection Status: new </div>
+
+    <h1>Local</h1>
+    <div id="local-track">
+    </div>
+
+    <h1>Remote</h1>
+    <div id="remote-track">
+    </div>
+
+
+    <script type="module">
+      import {
+        RealtimeConnection,
+        isRTCTrackEvent,
+        ConsoleLogger,
+        getAllUserMedia,
+      } from "https://esm.sh/@outspeed/core@1.0.6";
+
+      let connection = null
+
+      function appendAudio(stream, node) {
+        const audio = document.createElement("audio")
+        audio.srcObject = stream
+        audio.autoplay = true
+        audio.playsInline = true
+        audio.style.display = "none"
+        node.appendChild(audio)
+      }
+
+      function appendVideo(stream, node) {
+        const video = document.createElement("video")
+        video.srcObject = stream
+        video.autoplay = true
+        video.style.height = "400px"
+        video.style.width = "400px"
+        video.playsInline = true
+        node.appendChild(video)
+      }
+
+
+      async function updateDeviceInputs() {
+        const audioSelectElement = document.querySelector("#audio-list")
+        const videoSelectElement = document.querySelector("#video-list")
+        const devices = await getAllUserMedia()
+
+        for (const device of devices.audioInputDevices) {
+          const option = document.createElement('option')
+          option.value = device.deviceId
+          option.innerText = device.label
+          audioSelectElement.appendChild(option)
+        }
+
+
+        for (const device of devices.videoInputDevices) {
+          const option = document.createElement('option')
+          option.value = device.deviceId
+          option.innerText = device.label
+          videoSelectElement.appendChild(option)
+        }
+
+      }
+
+
+      function _handleOnTrack(event) {
+        if (!isRTCTrackEvent(event)) {
+          return;
+        }
+
+        const trackContainer = document.querySelector("#remote-track")
+
+        if (event.track.kind === "audio") {
+          appendAudio(new MediaStream([event.track]), trackContainer)
+        } else {
+          appendVideo(new MediaStream([event.track]), trackContainer)
+        }
+      }
+
+      function getConfig(formElement) {
+        const functionURL = formElement['function-url'].value
+        const audio = formElement['audio'].value
+        const video = formElement['video'].value
+
+        return {
+          functionURL,
+          audio: {
+            deviceId: audio
+          },
+          video: {
+            deviceId: video
+          },
+          codec: {
+            audio: "opus/48000/2",
+          },
+          logger: ConsoleLogger.getLogger()
+        }
+      }
+
+      async function setupConnection(event) {
+        event.preventDefault()
+        const form = event.currentTarget
+        const config = getConfig(form)
+
+        connection = new RealtimeConnection(config)
+        connection.addEventListener("track", _handleOnTrack)
+
+        document.querySelector("#connection-status").innerHTML = "Connection Status: Connecting"
+        const response = await connection.connect()
+
+        if (response.ok) {
+          document.querySelector("#connection-status").innerHTML = "Connection Status: Connected"
+          const trackContainer = document.querySelector("#local-track")
+
+          appendAudio(connection.mediaManager.localStreams.audio[0].stream, trackContainer)
+          appendVideo(connection.mediaManager.localStreams.video[0].stream, trackContainer)
+        } else {
+          document.querySelector("#connection-status").innerHTML = "Connection Status: Failed"
+        }
+      }
+
+      function disconnect(event) {
+        event.preventDefault()
+        if (connection) {
+          connection.removeEventListener("track", _handleOnTrack)
+          connection.disconnect()
+          document.querySelector("#connection-status").innerHTML = "Connection Status: Disconnected"
+        }
+
+        document.querySelector("#local-track").innerHTML = ""
+        document.querySelector("#remote-track").innerHTML = ""
+        connection = null
+      }
+
+
+
+      window.setupConnection = setupConnection
+      window.disconnect = disconnect
+      updateDeviceInputs()
+    </script>
+  </body>
+
+</html>

@@ -1,0 +1,127 @@
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Websocket Playground</title>
+  </head>
+
+  <body>
+    <a href="/">Back</a>
+    <h1>Websocket App</h1>
+
+
+    <form action="#" onsubmit="setupConnection(event)">
+      <label>
+        Function URL
+        <input type="text" name="function-url" />
+      </label>
+      <label>Audio Devices
+        <select name="audio" id="audio-list"></select>
+      </label>
+      <br />
+      <button>Connect</button>
+    </form>
+
+    <form onsubmit="disconnect(event)">
+      <button>Disconnect</button>
+    </form>
+    <div id="connection-status">Connection Status: new </div>
+
+    <div id="local-track">
+    </div>
+    <div id="remote-track">
+    </div>
+
+
+    <script type="module">
+      import {
+        RealtimeWebSocketConnection,
+        ConsoleLogger,
+        getAllUserMedia,
+      } from "https://esm.sh/@outspeed/core@1.0.6";
+
+      let connection = null
+
+      function appendAudio(stream, node) {
+        const audio = document.createElement("audio")
+        audio.srcObject = stream
+        audio.autoplay = true
+        audio.playsInline = true
+        audio.style.display = "none"
+        node.appendChild(audio)
+      }
+
+      async function updateDeviceInputs() {
+        const audioSelectElement = document.querySelector("#audio-list")
+        const devices = await getAllUserMedia()
+
+        for (const device of devices.audioInputDevices) {
+          const option = document.createElement('option')
+          option.value = device.deviceId
+          option.innerText = device.label
+          audioSelectElement.appendChild(option)
+        }
+      }
+
+      function getConfig(formElement) {
+        const functionURL = formElement['function-url'].value
+        const audio = formElement['audio'].value
+
+        return {
+          functionURL,
+          audio: {
+            deviceId: audio,
+            echoCancellation: true
+          },
+          logger: ConsoleLogger.getLogger()
+        }
+      }
+
+      async function setupConnection(event) {
+        event.preventDefault()
+        const form = event.currentTarget
+        const config = getConfig(form)
+
+        connection = new RealtimeWebSocketConnection(config)
+
+        document.querySelector("#connection-status").innerHTML = "Connection Status: Connecting"
+        const response = await connection.connect()
+
+        if (response.ok) {
+          document.querySelector("#connection-status").innerHTML = "Connection Status: Connected. Ask me anything!"
+          const trackContainer = document.querySelector("#local-track")
+
+          const remoteAudioResponse = await connection.mediaManager.getRemoteAudioTrack()
+
+          if (remoteAudioResponse.ok && remoteAudioResponse.data) {
+
+            appendAudio(remoteAudioResponse.data.stream, document.querySelector("#remote-track"))
+          }
+
+        } else {
+          document.querySelector("#connection-status").innerHTML = "Connection Status: Failed"
+        }
+      }
+
+      function disconnect(event) {
+        event.preventDefault()
+        if (connection) {
+          connection.disconnect()
+          document.querySelector("#connection-status").innerHTML = "Connection Status: Disconnected"
+        }
+
+        document.querySelector("#local-track").innerHTML = ""
+        document.querySelector("#remote-track").innerHTML = ""
+        connection = null
+      }
+
+
+
+      window.setupConnection = setupConnection
+      window.disconnect = disconnect
+      updateDeviceInputs()
+    </script>
+  </body>
+
+</html>
