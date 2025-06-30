@@ -1,9 +1,9 @@
 "use client";
 
-import { type SessionConfig } from "@outspeed/client";
+import { type SessionConfig, providers } from "@outspeed/client";
 import { useConversation } from "@outspeed/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import CharacterAvatar from "@/app/_components/CharacterAvatar";
 
@@ -29,7 +29,6 @@ Since you've to talk like a human, introduce disfluencies like "um", "ah", "like
 You are not an assistant, you are an AI character that is having a human-like conversation to Miles.`,
   voice: "sophie", // find more voices at https://dashboard.outspeed.com (this will be improved soon!)
   temperature: 0.7,
-  first_message: "Hey Miles, how are you doing?",
 };
 
 const sessionConfigMiles: SessionConfig = {
@@ -41,10 +40,17 @@ You are not an assistant, you are an AI character that is having a human-like co
   temperature: 0.7,
 };
 
+type UseConversationReturnType = ReturnType<typeof useConversation>;
+type CharacterId = "maya" | "miles";
+
 export default function Home() {
   const [sessionCreated, setSessionCreated] = useState(false);
   const [mayaSpeaking, setMayaSpeaking] = useState(false);
   const [milesSpeaking, setMilesSpeaking] = useState(false);
+  const queuedTranscriptRef = useRef<Record<CharacterId, string>>({
+    maya: "",
+    miles: "",
+  });
 
   const conversationMaya = useConversation({
     sessionConfig: sessionConfigMaya,
@@ -62,94 +68,101 @@ export default function Home() {
     },
   });
 
+  /**
+   * Start session for a character and wait for session.created event.
+   * Mute the input of conversation so it doesn't capture audio from microphone.
+   * Log all events for debugging.
+   * Track which character is speaking using output_audio_buffer events.
+   * Send this character's transcript to the other character.
+   *
+   * @param sessionConfig - The session configuration for the character.
+   * @param conversation - The conversation instance for the character.
+   * @param characterId - The ID of the character.
+   * @param otherConversation - The conversation instance for the other character.
+   * @returns
+   */
+  const startCharacterSession = async (
+    sessionConfig: SessionConfig,
+    conversation: UseConversationReturnType,
+    characterId: CharacterId,
+    otherConversation: UseConversationReturnType
+  ) => {
+    const ephemeralKey = await getEphemeralKeyFromServer(sessionConfig);
+
+    await conversation.startSession(ephemeralKey);
+
+    const sessionCreatedPromise: Promise<UseConversationReturnType> = new Promise((resolve) => {
+      conversation.on("session.created", () => {
+        conversation.toggleMute(); // mute the input of conversation so it doesn't capture audio from microphone
+        resolve(conversation);
+      });
+    });
+
+    // Log all events for debugging
+    const debugEvents = [
+      "output_audio_buffer.started",
+      "output_audio_buffer.stopped",
+      "output_audio_buffer.commit",
+      "response.audio_transcript.delta",
+      "response.audio.delta",
+      "conversation.item.input_audio_transcription.completed",
+    ];
+    debugEvents.forEach((event) => {
+      conversation.on(event, (data) => {
+        console.log(`${characterId === "maya" ? "🔵" : "🟢"} ${characterId} Event: ${event}`, data);
+      });
+    });
+
+    conversation.on("response.done", (event) => {
+      const content = event.response.output[0].content[0];
+      const transcript = content.transcript;
+      if (typeof transcript === "string") {
+        queuedTranscriptRef.current[characterId] = transcript;
+        console.log(`stored ${characterId} transcript:`, transcript);
+      }
+    });
+
+    // Track which character is speaking using output_audio_buffer events
+    conversation.on("output_audio_buffer.started", () => {
+      console.log(`🗣️ ${characterId} started speaking`);
+
+      if (characterId === "maya") {
+        setMayaSpeaking(true);
+      } else {
+        setMilesSpeaking(true);
+      }
+    });
+
+    conversation.on("output_audio_buffer.stopped", () => {
+      const transcript = queuedTranscriptRef.current[characterId];
+      console.log(`${characterId} stopped speaking... sending "${transcript}" to the other character`);
+
+      if (characterId === "maya") {
+        setMayaSpeaking(false);
+      } else {
+        setMilesSpeaking(false);
+      }
+
+      // Send this character's transcript to the other character
+      otherConversation.sendText(transcript);
+    });
+
+    conversation.on("error", console.error);
+
+    return sessionCreatedPromise;
+  };
+
   const startSession = async () => {
     try {
-      // get ephemeral keys for both sessions
-      const [ephemeralKeyOne, ephemeralKeyTwo] = await Promise.all([
-        getEphemeralKeyFromServer(sessionConfigMaya),
-        getEphemeralKeyFromServer(sessionConfigMiles),
+      // Start Miles session first and wait for session.created event
+      await Promise.all([
+        startCharacterSession(sessionConfigMiles, conversationMiles, "miles", conversationMaya),
+        startCharacterSession(sessionConfigMaya, conversationMaya, "maya", conversationMiles),
       ]);
+      setSessionCreated(true);
 
-      // start session for Miles and wait for session.created event
-      await conversationMiles.startSession(ephemeralKeyTwo);
-      const milesSessionCreatedPromise = new Promise((resolve) => {
-        conversationMiles.on("session.created", () => {
-          conversationMiles.toggleMute(); // mute the input of conversation Miles so it doesn't capture audio from microphone
-          resolve(true);
-        });
-      });
-      await milesSessionCreatedPromise;
-
-      // now we can start the session for Maya
-      await conversationMaya.startSession(ephemeralKeyOne);
-      conversationMaya.on("session.created", () => {
-        conversationMaya.toggleMute(); // mute the input of conversation Maya so it doesn't capture audio from microphone
-        setSessionCreated(true);
-      });
-
-      // Log all events for debugging
-      const debugEvents = [
-        "output_audio_buffer.started",
-        "output_audio_buffer.stopped",
-        "output_audio_buffer.commit",
-        "response.audio_transcript.delta",
-        "response.audio.delta",
-        "conversation.item.input_audio_transcription.completed",
-      ];
-      debugEvents.forEach((event) => {
-        conversationMaya.on(event, (data) => {
-          console.log(`🔵 Maya Event: ${event}`, data);
-        });
-        conversationMiles.on(event, (data) => {
-          console.log(`🟢 Miles Event: ${event}`, data);
-        });
-      });
-
-      let queuedMayaTranscript = "";
-      conversationMaya.on("response.done", (event) => {
-        const content = event.response.output[0].content[0];
-        const transcript = content.transcript;
-        if (typeof transcript === "string") {
-          queuedMayaTranscript = transcript;
-          console.log("stored Maya transcript", transcript);
-        }
-      });
-
-      // Track Maya speaking using output_audio_buffer events
-      conversationMaya.on("output_audio_buffer.started", () => {
-        console.log("🗣️ Maya started speaking");
-        setMayaSpeaking(true);
-      });
-
-      conversationMaya.on("output_audio_buffer.stopped", () => {
-        console.log(`maya stopped speaking... sending ${queuedMayaTranscript} to Miles`);
-        console.log("🔇 Maya stopped speaking");
-        setMayaSpeaking(false);
-        conversationMiles.sendText(queuedMayaTranscript); // todo: fix
-      });
-
-      let queuedMilesTranscript = "";
-      conversationMiles.on("response.done", (event) => {
-        const content = event.response.output[0].content[0];
-        const transcript = content.transcript;
-        if (typeof transcript === "string") {
-          queuedMilesTranscript = transcript;
-          console.log("stored Miles transcript", transcript);
-        }
-      });
-
-      // Track Miles speaking using output_audio_buffer events
-      conversationMiles.on("output_audio_buffer.started", () => {
-        console.log("🗣️ Miles started speaking");
-        setMilesSpeaking(true);
-      });
-
-      conversationMiles.on("output_audio_buffer.stopped", () => {
-        console.log(`miles stopped speaking... sending ${queuedMilesTranscript} to Maya`);
-        console.log("🔇 Miles stopped speaking");
-        setMilesSpeaking(false);
-        conversationMaya.sendText(queuedMilesTranscript);
-      });
+      // make Maya speak first
+      await conversationMaya.speak("Hey Miles, how are you doing?");
     } catch (error) {
       console.error("Error starting session", error);
     }
