@@ -4,6 +4,46 @@ import { type SessionConfig } from "@outspeed/client";
 import { useConversation } from "@outspeed/react";
 import Image from "next/image";
 import { useState } from "react";
+import { twMerge } from "tailwind-merge";
+
+interface CharacterAvatarProps {
+  name: string;
+  initial: string;
+  isSpeaking: boolean;
+  speakingClasses: string;
+  silentClasses: string;
+  dotClasses: string;
+}
+
+function CharacterAvatar({ name, initial, isSpeaking, speakingClasses, silentClasses, dotClasses }: CharacterAvatarProps) {
+  const avatarClasses = twMerge(
+    "w-24 h-24 rounded-lg flex items-center justify-center text-white font-bold text-2xl transition-all duration-300 border-4 shadow-lg",
+    isSpeaking ? speakingClasses : silentClasses
+  );
+
+  const dotBaseClasses = "w-1 h-1 rounded-full animate-bounce";
+
+  return (
+    <div className="flex flex-col items-center w-32">
+      <div className="w-28 h-28 flex items-center justify-center">
+        <div className={avatarClasses}>
+          {initial}
+        </div>
+      </div>
+      <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">{name}</p>
+      <p className="text-xs text-gray-500">Debug: {isSpeaking ? "SPEAKING" : "SILENT"}</p>
+      <div className="mt-1 h-2 flex justify-center items-center gap-1">
+        {isSpeaking && (
+          <>
+            <div className={twMerge(dotBaseClasses, dotClasses)}></div>
+            <div className={twMerge(dotBaseClasses, dotClasses)} style={{ animationDelay: '0.1s' }}></div>
+            <div className={twMerge(dotBaseClasses, dotClasses)} style={{ animationDelay: '0.2s' }}></div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const getEphemeralKeyFromServer = async (config: SessionConfig) => {
   const tokenResponse = await fetch("/api/token", {
@@ -41,6 +81,8 @@ You are not an assistant, you are an AI character that is having a human-like co
 
 export default function Home() {
   const [sessionCreated, setSessionCreated] = useState(false);
+  const [mayaSpeaking, setMayaSpeaking] = useState(false);
+  const [milesSpeaking, setMilesSpeaking] = useState(false);
 
   const conversationMaya = useConversation({
     sessionConfig: sessionConfigMaya,
@@ -83,6 +125,17 @@ export default function Home() {
         setSessionCreated(true);
       });
 
+      // Log all events for debugging
+      const debugEvents = ['output_audio_buffer.started', 'output_audio_buffer.stopped', 'output_audio_buffer.commit', 'response.audio_transcript.delta', 'response.audio.delta', 'conversation.item.input_audio_transcription.completed'];
+      debugEvents.forEach(event => {
+        conversationMaya.on(event, (data) => {
+          console.log(`🔵 Maya Event: ${event}`, data);
+        });
+        conversationMiles.on(event, (data) => {
+          console.log(`🟢 Miles Event: ${event}`, data);
+        });
+      });
+
       let queuedMayaTranscript = "";
       conversationMaya.on("response.done", (event) => {
         const content = event.response.output[0].content[0];
@@ -93,8 +146,16 @@ export default function Home() {
         }
       });
 
+      // Track Maya speaking using output_audio_buffer events
+      conversationMaya.on("output_audio_buffer.started", () => {
+        console.log("🗣️ Maya started speaking");
+        setMayaSpeaking(true);
+      });
+
       conversationMaya.on("output_audio_buffer.stopped", () => {
         console.log(`maya stopped speaking... sending ${queuedMayaTranscript} to Miles`);
+        console.log("🔇 Maya stopped speaking");
+        setMayaSpeaking(false);
         conversationMiles.sendText(queuedMayaTranscript); // todo: fix
       });
 
@@ -108,8 +169,16 @@ export default function Home() {
         }
       });
 
+      // Track Miles speaking using output_audio_buffer events
+      conversationMiles.on("output_audio_buffer.started", () => {
+        console.log("🗣️ Miles started speaking");
+        setMilesSpeaking(true);
+      });
+
       conversationMiles.on("output_audio_buffer.stopped", () => {
         console.log(`miles stopped speaking... sending ${queuedMilesTranscript} to Maya`);
+        console.log("🔇 Miles stopped speaking");
+        setMilesSpeaking(false);
         conversationMaya.sendText(queuedMilesTranscript);
       });
     } catch (error) {
@@ -124,6 +193,8 @@ export default function Home() {
       console.error("Error ending session", error);
     } finally {
       setSessionCreated(false);
+      setMayaSpeaking(false);
+      setMilesSpeaking(false);
     }
   };
 
@@ -149,7 +220,7 @@ export default function Home() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
             <div className="text-center">
               <div
-                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${
+                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mb-6 ${
                   sessionCreated
                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                     : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
@@ -161,12 +232,33 @@ export default function Home() {
                 {sessionCreated ? "Session Active" : "Ready to Connect"}
               </div>
 
+              {/* Character Avatars */}
+              <div className="flex justify-center items-start gap-8 mb-8">
+                <CharacterAvatar
+                  name="Maya"
+                  initial="M"
+                  isSpeaking={mayaSpeaking}
+                  speakingClasses="border-purple-500 shadow-purple-200 bg-gradient-to-br from-purple-400 to-pink-500"
+                  silentClasses="border-gray-300 shadow-gray-200 bg-gradient-to-br from-purple-300 to-pink-400"
+                  dotClasses="bg-purple-500"
+                />
+
+                <CharacterAvatar
+                  name="Miles"
+                  initial="M"
+                  isSpeaking={milesSpeaking}
+                  speakingClasses="border-blue-500 shadow-blue-200 bg-gradient-to-br from-blue-400 to-cyan-500"
+                  silentClasses="border-gray-300 shadow-gray-200 bg-gradient-to-br from-blue-300 to-cyan-400"
+                  dotClasses="bg-blue-500"
+                />
+              </div>
+
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {sessionCreated ? "Conversation is Live" : "Start the Conversation"}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
                 {sessionCreated
-                  ? "Listen to AIs talking to each other"
+                  ? "Listen to Maya and Miles talking to each other"
                   : "Click the button below to begin the conversation"}
               </p>
 
