@@ -51,7 +51,7 @@ export default function Home() {
   });
 
   const conversationMiles = useConversation({
-    sessionConfig: sessionConfigMaya,
+    sessionConfig: sessionConfigMiles,
     onDisconnect: () => {
       console.log("Miles Disconnected! cleaning up...");
       endSession();
