@@ -85,7 +85,8 @@ export default function Home() {
     sessionConfig: SessionConfig,
     conversation: UseConversationReturnType,
     characterId: CharacterId,
-    otherConversation: UseConversationReturnType
+    otherConversation: UseConversationReturnType,
+    setSpeaking: (speaking: boolean) => void
   ) => {
     const ephemeralKey = await getEphemeralKeyFromServer(sessionConfig);
 
@@ -125,23 +126,14 @@ export default function Home() {
     // Track which character is speaking using output_audio_buffer events
     conversation.on("output_audio_buffer.started", () => {
       console.log(`🗣️ ${characterId} started speaking`);
-
-      if (characterId === "maya") {
-        setMayaSpeaking(true);
-      } else {
-        setMilesSpeaking(true);
-      }
+      setSpeaking(true);
     });
 
     conversation.on("output_audio_buffer.stopped", () => {
       const transcript = queuedTranscriptRef.current[characterId];
       console.log(`${characterId} stopped speaking... sending "${transcript}" to the other character`);
 
-      if (characterId === "maya") {
-        setMayaSpeaking(false);
-      } else {
-        setMilesSpeaking(false);
-      }
+      setSpeaking(false);
 
       // Send this character's transcript to the other character
       otherConversation.sendText(transcript);
@@ -156,8 +148,8 @@ export default function Home() {
     try {
       // Start Miles session first and wait for session.created event
       await Promise.all([
-        startCharacterSession(sessionConfigMiles, conversationMiles, "miles", conversationMaya),
-        startCharacterSession(sessionConfigMaya, conversationMaya, "maya", conversationMiles),
+        startCharacterSession(sessionConfigMiles, conversationMiles, "miles", conversationMaya, setMilesSpeaking),
+        startCharacterSession(sessionConfigMaya, conversationMaya, "maya", conversationMiles, setMayaSpeaking),
       ]);
       setSessionCreated(true);
 
