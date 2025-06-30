@@ -5,6 +5,8 @@ import { useConversation } from "@outspeed/react";
 import Image from "next/image";
 import { useState } from "react";
 
+import CharacterAvatar from "@/app/_components/CharacterAvatar";
+
 const getEphemeralKeyFromServer = async (config: SessionConfig) => {
   const tokenResponse = await fetch("/api/token", {
     method: "POST",
@@ -41,6 +43,8 @@ You are not an assistant, you are an AI character that is having a human-like co
 
 export default function Home() {
   const [sessionCreated, setSessionCreated] = useState(false);
+  const [mayaSpeaking, setMayaSpeaking] = useState(false);
+  const [milesSpeaking, setMilesSpeaking] = useState(false);
 
   const conversationMaya = useConversation({
     sessionConfig: sessionConfigMaya,
@@ -83,6 +87,24 @@ export default function Home() {
         setSessionCreated(true);
       });
 
+      // Log all events for debugging
+      const debugEvents = [
+        "output_audio_buffer.started",
+        "output_audio_buffer.stopped",
+        "output_audio_buffer.commit",
+        "response.audio_transcript.delta",
+        "response.audio.delta",
+        "conversation.item.input_audio_transcription.completed",
+      ];
+      debugEvents.forEach((event) => {
+        conversationMaya.on(event, (data) => {
+          console.log(`🔵 Maya Event: ${event}`, data);
+        });
+        conversationMiles.on(event, (data) => {
+          console.log(`🟢 Miles Event: ${event}`, data);
+        });
+      });
+
       let queuedMayaTranscript = "";
       conversationMaya.on("response.done", (event) => {
         const content = event.response.output[0].content[0];
@@ -93,8 +115,16 @@ export default function Home() {
         }
       });
 
+      // Track Maya speaking using output_audio_buffer events
+      conversationMaya.on("output_audio_buffer.started", () => {
+        console.log("🗣️ Maya started speaking");
+        setMayaSpeaking(true);
+      });
+
       conversationMaya.on("output_audio_buffer.stopped", () => {
         console.log(`maya stopped speaking... sending ${queuedMayaTranscript} to Miles`);
+        console.log("🔇 Maya stopped speaking");
+        setMayaSpeaking(false);
         conversationMiles.sendText(queuedMayaTranscript); // todo: fix
       });
 
@@ -108,8 +138,16 @@ export default function Home() {
         }
       });
 
+      // Track Miles speaking using output_audio_buffer events
+      conversationMiles.on("output_audio_buffer.started", () => {
+        console.log("🗣️ Miles started speaking");
+        setMilesSpeaking(true);
+      });
+
       conversationMiles.on("output_audio_buffer.stopped", () => {
         console.log(`miles stopped speaking... sending ${queuedMilesTranscript} to Maya`);
+        console.log("🔇 Miles stopped speaking");
+        setMilesSpeaking(false);
         conversationMaya.sendText(queuedMilesTranscript);
       });
     } catch (error) {
@@ -124,6 +162,8 @@ export default function Home() {
       console.error("Error ending session", error);
     } finally {
       setSessionCreated(false);
+      setMayaSpeaking(false);
+      setMilesSpeaking(false);
     }
   };
 
@@ -149,7 +189,7 @@ export default function Home() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
             <div className="text-center">
               <div
-                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${
+                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mb-6 ${
                   sessionCreated
                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                     : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
@@ -161,12 +201,37 @@ export default function Home() {
                 {sessionCreated ? "Session Active" : "Ready to Connect"}
               </div>
 
+              {/* Character Avatars */}
+              <div className="flex justify-center items-center gap-16 mb-8">
+                <CharacterAvatar
+                  name="Maya"
+                  initial="Ma"
+                  sessionStarted={sessionCreated}
+                  isSpeaking={mayaSpeaking}
+                  speakingClasses="border-purple-400 shadow-purple-300 bg-gradient-to-br from-purple-500 to-pink-500 shadow-2xl scale-110"
+                  silentClasses="border-purple-200 shadow-purple-100 bg-gradient-to-br from-purple-400 to-pink-400"
+                  dotClasses="bg-purple-400"
+                />
+
+                <div className="hidden sm:block w-px h-16 bg-gradient-to-b from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
+
+                <CharacterAvatar
+                  name="Miles"
+                  initial="Mi"
+                  sessionStarted={sessionCreated}
+                  isSpeaking={milesSpeaking}
+                  speakingClasses="border-blue-400 shadow-blue-300 bg-gradient-to-br from-blue-500 to-cyan-500 shadow-2xl scale-110"
+                  silentClasses="border-blue-200 shadow-blue-100 bg-gradient-to-br from-blue-400 to-cyan-400"
+                  dotClasses="bg-blue-400"
+                />
+              </div>
+
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {sessionCreated ? "Conversation is Live" : "Start the Conversation"}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
                 {sessionCreated
-                  ? "Listen to AIs talking to each other"
+                  ? "Listen to Maya and Miles talking to each other"
                   : "Click the button below to begin the conversation"}
               </p>
 
