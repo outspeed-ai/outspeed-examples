@@ -4,46 +4,8 @@ import { type SessionConfig } from "@outspeed/client";
 import { useConversation } from "@outspeed/react";
 import Image from "next/image";
 import { useState } from "react";
-import { twMerge } from "tailwind-merge";
 
-interface CharacterAvatarProps {
-  name: string;
-  initial: string;
-  isSpeaking: boolean;
-  speakingClasses: string;
-  silentClasses: string;
-  dotClasses: string;
-}
-
-function CharacterAvatar({ name, initial, isSpeaking, speakingClasses, silentClasses, dotClasses }: CharacterAvatarProps) {
-  const avatarClasses = twMerge(
-    "w-24 h-24 rounded-lg flex items-center justify-center text-white font-bold text-2xl transition-all duration-300 border-4 shadow-lg",
-    isSpeaking ? speakingClasses : silentClasses
-  );
-
-  const dotBaseClasses = "w-1 h-1 rounded-full animate-bounce";
-
-  return (
-    <div className="flex flex-col items-center w-32">
-      <div className="w-28 h-28 flex items-center justify-center">
-        <div className={avatarClasses}>
-          {initial}
-        </div>
-      </div>
-      <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">{name}</p>
-      <p className="text-xs text-gray-500">Debug: {isSpeaking ? "SPEAKING" : "SILENT"}</p>
-      <div className="mt-1 h-2 flex justify-center items-center gap-1">
-        {isSpeaking && (
-          <>
-            <div className={twMerge(dotBaseClasses, dotClasses)}></div>
-            <div className={twMerge(dotBaseClasses, dotClasses)} style={{ animationDelay: '0.1s' }}></div>
-            <div className={twMerge(dotBaseClasses, dotClasses)} style={{ animationDelay: '0.2s' }}></div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
+import CharacterAvatar from "@/app/_components/CharacterAvatar";
 
 const getEphemeralKeyFromServer = async (config: SessionConfig) => {
   const tokenResponse = await fetch("/api/token", {
@@ -126,8 +88,15 @@ export default function Home() {
       });
 
       // Log all events for debugging
-      const debugEvents = ['output_audio_buffer.started', 'output_audio_buffer.stopped', 'output_audio_buffer.commit', 'response.audio_transcript.delta', 'response.audio.delta', 'conversation.item.input_audio_transcription.completed'];
-      debugEvents.forEach(event => {
+      const debugEvents = [
+        "output_audio_buffer.started",
+        "output_audio_buffer.stopped",
+        "output_audio_buffer.commit",
+        "response.audio_transcript.delta",
+        "response.audio.delta",
+        "conversation.item.input_audio_transcription.completed",
+      ];
+      debugEvents.forEach((event) => {
         conversationMaya.on(event, (data) => {
           console.log(`🔵 Maya Event: ${event}`, data);
         });
@@ -233,23 +202,27 @@ export default function Home() {
               </div>
 
               {/* Character Avatars */}
-              <div className="flex justify-center items-start gap-8 mb-8">
+              <div className="flex justify-center items-center gap-16 mb-8">
                 <CharacterAvatar
                   name="Maya"
-                  initial="M"
+                  initial="Ma"
+                  sessionStarted={sessionCreated}
                   isSpeaking={mayaSpeaking}
-                  speakingClasses="border-purple-500 shadow-purple-200 bg-gradient-to-br from-purple-400 to-pink-500"
-                  silentClasses="border-gray-300 shadow-gray-200 bg-gradient-to-br from-purple-300 to-pink-400"
-                  dotClasses="bg-purple-500"
+                  speakingClasses="border-purple-400 shadow-purple-300 bg-gradient-to-br from-purple-500 to-pink-500 shadow-2xl scale-110"
+                  silentClasses="border-purple-200 shadow-purple-100 bg-gradient-to-br from-purple-400 to-pink-400"
+                  dotClasses="bg-purple-400"
                 />
+
+                <div className="hidden sm:block w-px h-16 bg-gradient-to-b from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
 
                 <CharacterAvatar
                   name="Miles"
-                  initial="M"
+                  initial="Mi"
+                  sessionStarted={sessionCreated}
                   isSpeaking={milesSpeaking}
-                  speakingClasses="border-blue-500 shadow-blue-200 bg-gradient-to-br from-blue-400 to-cyan-500"
-                  silentClasses="border-gray-300 shadow-gray-200 bg-gradient-to-br from-blue-300 to-cyan-400"
-                  dotClasses="bg-blue-500"
+                  speakingClasses="border-blue-400 shadow-blue-300 bg-gradient-to-br from-blue-500 to-cyan-500 shadow-2xl scale-110"
+                  silentClasses="border-blue-200 shadow-blue-100 bg-gradient-to-br from-blue-400 to-cyan-400"
+                  dotClasses="bg-blue-400"
                 />
               </div>
 
