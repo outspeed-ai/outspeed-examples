@@ -22,48 +22,48 @@ const getEphemeralKeyFromServer = async (config: SessionConfig) => {
   return data.client_secret.value;
 };
 
-const sessionConfigMaya: SessionConfig = {
+const sessionConfigSophie: SessionConfig = {
   model: "outspeed-v1",
-  instructions: `You are Maya, a helpful, human-like AI for Outspeed. You are talking to Miles, another AI just like you.
+  instructions: `You are Sophie, a helpful, human-like AI for Outspeed. You are talking to David, another AI just like you.
 Since you've to talk like a human, introduce disfluencies like "um", "ah", "like", "you know", etc.
-You are not an assistant, you are an AI character that is having a human-like conversation to Miles.`,
+You are not an assistant, you are an AI character that is having a human-like conversation to David.`,
   voice: "sophie", // find more voices at https://dashboard.outspeed.com (this will be improved soon!)
   temperature: 0.7,
 };
 
-const sessionConfigMiles: SessionConfig = {
+const sessionConfigDavid: SessionConfig = {
   model: "outspeed-v1",
-  instructions: `You are Miles, a helpful, human-like AI for Outspeed. You are talking to Maya, another AI just like you.
+  instructions: `You are David, a helpful, human-like AI for Outspeed. You are talking to Sophie, another AI just like you.
 Since you've to talk like a human, introduce disfluencies like "um", "ah", "like", "you know", etc.
-You are not an assistant, you are an AI character that is having a human-like conversation to Maya.`,
+You are not an assistant, you are an AI character that is having a human-like conversation to Sophie.`,
   voice: "david", // find more voices at https://dashboard.outspeed.com (this will be improved soon!)
   temperature: 0.7,
 };
 
 type UseConversationReturnType = ReturnType<typeof useConversation>;
-type CharacterId = "maya" | "miles";
+type CharacterName = "sophie" | "david";
 
 export default function Home() {
   const [sessionCreated, setSessionCreated] = useState(false);
-  const [mayaSpeaking, setMayaSpeaking] = useState(false);
-  const [milesSpeaking, setMilesSpeaking] = useState(false);
-  const queuedTranscriptRef = useRef<Record<CharacterId, string>>({
-    maya: "",
-    miles: "",
+  const [sophieSpeaking, setSophieSpeaking] = useState(false);
+  const [davidSpeaking, setDavidSpeaking] = useState(false);
+  const queuedTranscriptRef = useRef<Record<CharacterName, string>>({
+    sophie: "",
+    david: "",
   });
 
-  const conversationMaya = useConversation({
-    sessionConfig: sessionConfigMaya,
+  const conversationSophie = useConversation({
+    sessionConfig: sessionConfigSophie,
     onDisconnect: () => {
-      console.log("Maya Disconnected! cleaning up...");
+      console.log("Sophie Disconnected! cleaning up...");
       endSession();
     },
   });
 
-  const conversationMiles = useConversation({
-    sessionConfig: sessionConfigMiles,
+  const conversationDavid = useConversation({
+    sessionConfig: sessionConfigDavid,
     onDisconnect: () => {
-      console.log("Miles Disconnected! cleaning up...");
+      console.log("David Disconnected! cleaning up...");
       endSession();
     },
   });
@@ -77,14 +77,14 @@ export default function Home() {
    *
    * @param sessionConfig - The session configuration for the character.
    * @param conversation - The conversation instance for the character.
-   * @param characterId - The ID of the character.
+   * @param characterName - The ID of the character.
    * @param otherConversation - The conversation instance for the other character.
    * @returns
    */
   const startCharacterSession = async (
     sessionConfig: SessionConfig,
     conversation: UseConversationReturnType,
-    characterId: CharacterId,
+    characterName: CharacterName,
     otherConversation: UseConversationReturnType,
     setSpeaking: (speaking: boolean) => void
   ) => {
@@ -110,7 +110,7 @@ export default function Home() {
     ];
     debugEvents.forEach((event) => {
       conversation.on(event, (data) => {
-        console.log(`${characterId === "maya" ? "🔵" : "🟢"} ${characterId} Event: ${event}`, data);
+        console.log(`${characterName === "sophie" ? "🔵" : "🟢"} ${characterName} Event: ${event}`, data);
       });
     });
 
@@ -118,20 +118,20 @@ export default function Home() {
       const content = event.response.output[0].content[0];
       const transcript = content.transcript;
       if (typeof transcript === "string") {
-        queuedTranscriptRef.current[characterId] = transcript;
-        console.log(`stored ${characterId} transcript:`, transcript);
+        queuedTranscriptRef.current[characterName] = transcript;
+        console.log(`stored ${characterName} transcript:`, transcript);
       }
     });
 
     // Track which character is speaking using output_audio_buffer events
     conversation.on("output_audio_buffer.started", () => {
-      console.log(`🗣️ ${characterId} started speaking`);
+      console.log(`🗣️ ${characterName} started speaking`);
       setSpeaking(true);
     });
 
     conversation.on("output_audio_buffer.stopped", () => {
-      const transcript = queuedTranscriptRef.current[characterId];
-      console.log(`${characterId} stopped speaking... sending "${transcript}" to the other character`);
+      const transcript = queuedTranscriptRef.current[characterName];
+      console.log(`${characterName} stopped speaking... sending "${transcript}" to the other character`);
 
       setSpeaking(false);
 
@@ -146,15 +146,15 @@ export default function Home() {
 
   const startSession = async () => {
     try {
-      // Start Miles session first and wait for session.created event
+      // Start David session first and wait for session.created event
       await Promise.all([
-        startCharacterSession(sessionConfigMiles, conversationMiles, "miles", conversationMaya, setMilesSpeaking),
-        startCharacterSession(sessionConfigMaya, conversationMaya, "maya", conversationMiles, setMayaSpeaking),
+        startCharacterSession(sessionConfigDavid, conversationDavid, "david", conversationSophie, setDavidSpeaking),
+        startCharacterSession(sessionConfigSophie, conversationSophie, "sophie", conversationDavid, setSophieSpeaking),
       ]);
       setSessionCreated(true);
 
-      // make Maya speak first
-      await conversationMaya.speak("Hey Miles, how are you doing?");
+      // make Sophie speak first
+      await conversationSophie.speak("Hey David, how are you doing?");
     } catch (error) {
       console.error("Error starting session", error);
     }
@@ -162,13 +162,13 @@ export default function Home() {
 
   const endSession = async () => {
     try {
-      await Promise.all([conversationMaya.endSession(), conversationMiles.endSession()]);
+      await Promise.all([conversationSophie.endSession(), conversationDavid.endSession()]);
     } catch (error) {
       console.error("Error ending session", error);
     } finally {
       setSessionCreated(false);
-      setMayaSpeaking(false);
-      setMilesSpeaking(false);
+      setSophieSpeaking(false);
+      setDavidSpeaking(false);
     }
   };
 
@@ -209,10 +209,10 @@ export default function Home() {
               {/* Character Avatars */}
               <div className="flex justify-center items-center gap-16 mb-8">
                 <CharacterAvatar
-                  name="Maya"
-                  initial="Ma"
+                  name="Sophie"
+                  initial="S"
                   sessionStarted={sessionCreated}
-                  isSpeaking={mayaSpeaking}
+                  isSpeaking={sophieSpeaking}
                   speakingClasses="border-purple-400 shadow-purple-300 bg-gradient-to-br from-purple-500 to-pink-500 shadow-2xl scale-110"
                   silentClasses="border-purple-200 shadow-purple-100 bg-gradient-to-br from-purple-400 to-pink-400"
                   dotClasses="bg-purple-400"
@@ -221,10 +221,10 @@ export default function Home() {
                 <div className="hidden sm:block w-px h-16 bg-gradient-to-b from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
 
                 <CharacterAvatar
-                  name="Miles"
-                  initial="Mi"
+                  name="David"
+                  initial="D"
                   sessionStarted={sessionCreated}
-                  isSpeaking={milesSpeaking}
+                  isSpeaking={davidSpeaking}
                   speakingClasses="border-blue-400 shadow-blue-300 bg-gradient-to-br from-blue-500 to-cyan-500 shadow-2xl scale-110"
                   silentClasses="border-blue-200 shadow-blue-100 bg-gradient-to-br from-blue-400 to-cyan-400"
                   dotClasses="bg-blue-400"
@@ -236,7 +236,7 @@ export default function Home() {
               </h2>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
                 {sessionCreated
-                  ? "Listen to Maya and Miles talking to each other"
+                  ? "Listen to Sophie and David talking to each other"
                   : "Click the button below to begin the conversation"}
               </p>
 

@@ -4,7 +4,7 @@ A modern AI-to-AI voice chat application built with Next.js and powered by Outsp
 
 ## Features
 
-- 🎤 **AI-to-AI Voice Conversation** - Watch two AI characters (Maya and Miles) have a natural conversation
+- 🎤 **AI-to-AI Voice Conversation** - Watch two AI characters (Sophie and David) have a natural conversation
 - 🗣️ **Human-like Speech** - AIs use disfluencies like "um", "ah", "like" to sound more natural
 - 🎨 **Modern UI** - Clean, responsive design with dark mode support
 - 🚀 **Built with Next.js** - App Router, TypeScript, and Tailwind CSS
@@ -67,15 +67,15 @@ Navigate to [http://localhost:3000](http://localhost:3000) to see the applicatio
 ## How to Use
 
 1. **Start a Session**: Click the "Start Session" button to begin
-2. **Listen**: Once connected, listen to Maya and Miles have a natural conversation
+2. **Listen**: Once connected, listen to Sophie and David have a natural conversation
 3. **End Session**: Click "End Session" to stop the conversation
 
 ## How It Works
 
 The application creates two AI characters:
 
-- **Maya**: Uses the "sophie" voice and initiates the conversation
-- **Miles**: Uses the "david" voice and responds to Maya
+- **Sophie**: Uses the "sophie" voice and initiates the conversation
+- **David**: Uses the "david" voice and responds to Sophie
 
 Both AIs are configured to:
 
