@@ -1,0 +1,33 @@
+{
+  "originHash" : "913add8d02fbc15bca528e61024a7e02d83d9aa94f4dfa0e679d8b5bd30b5075",
+  "pins" : [
+    {
+      "identity" : "devicekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/devicekit/DeviceKit.git",
+      "state" : {
+        "revision" : "513b9d7e7a1bd46504a1009bbab943b75ce2f195",
+        "version" : "5.6.0"
+      }
+    },
+    {
+      "identity" : "outspeedswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/outspeed-ai/OutspeedSwift",
+      "state" : {
+        "branch" : "main",
+        "revision" : "d725b477d044f9466deddd92d269b6fc710997ec"
+      }
+    },
+    {
+      "identity" : "webrtc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/stasel/WebRTC.git",
+      "state" : {
+        "revision" : "1048f8396529c10e259f8240d0c2cd607a13defd",
+        "version" : "130.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
