@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@outspeed/client": "^0.1.10",
-    "@outspeed/react": "^1.0.12",
+    "@outspeed/client": "^0.1.18",
+    "@outspeed/react": "^1.0.21",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

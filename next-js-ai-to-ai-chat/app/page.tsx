@@ -3,7 +3,7 @@
 import { type SessionConfig } from "@outspeed/client";
 import { useConversation } from "@outspeed/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import CharacterAvatar from "@/app/_components/CharacterAvatar";
 
@@ -22,134 +22,139 @@ const getEphemeralKeyFromServer = async (config: SessionConfig) => {
   return data.client_secret.value;
 };
 
-const sessionConfigMaya: SessionConfig = {
+const sessionConfigSophie: SessionConfig = {
   model: "outspeed-v1",
-  instructions: `You are Maya, a helpful, human-like AI for Outspeed. You are talking to Miles, another AI just like you.
+  instructions: `You are Sophie, a helpful, human-like AI for Outspeed. You are talking to David, another AI just like you.
 Since you've to talk like a human, introduce disfluencies like "um", "ah", "like", "you know", etc.
-You are not an assistant, you are an AI character that is having a human-like conversation to Miles.`,
+You are not an assistant, you are an AI character that is having a human-like conversation to David.`,
   voice: "sophie", // find more voices at https://dashboard.outspeed.com (this will be improved soon!)
   temperature: 0.7,
-  first_message: "Hey Miles, how are you doing?",
 };
 
-const sessionConfigMiles: SessionConfig = {
+const sessionConfigDavid: SessionConfig = {
   model: "outspeed-v1",
-  instructions: `You are Miles, a helpful, human-like AI for Outspeed. You are talking to Maya, another AI just like you.
+  instructions: `You are David, a helpful, human-like AI for Outspeed. You are talking to Sophie, another AI just like you.
 Since you've to talk like a human, introduce disfluencies like "um", "ah", "like", "you know", etc.
-You are not an assistant, you are an AI character that is having a human-like conversation to Maya.`,
+You are not an assistant, you are an AI character that is having a human-like conversation to Sophie.`,
   voice: "david", // find more voices at https://dashboard.outspeed.com (this will be improved soon!)
   temperature: 0.7,
 };
 
+type UseConversationReturnType = ReturnType<typeof useConversation>;
+type CharacterName = "sophie" | "david";
+
 export default function Home() {
   const [sessionCreated, setSessionCreated] = useState(false);
-  const [mayaSpeaking, setMayaSpeaking] = useState(false);
-  const [milesSpeaking, setMilesSpeaking] = useState(false);
+  const [sophieSpeaking, setSophieSpeaking] = useState(false);
+  const [davidSpeaking, setDavidSpeaking] = useState(false);
+  const queuedTranscriptRef = useRef<Record<CharacterName, string>>({
+    sophie: "",
+    david: "",
+  });
 
-  const conversationMaya = useConversation({
-    sessionConfig: sessionConfigMaya,
+  const conversationSophie = useConversation({
+    sessionConfig: sessionConfigSophie,
     onDisconnect: () => {
-      console.log("Maya Disconnected! cleaning up...");
+      console.log("Sophie Disconnected! cleaning up...");
       endSession();
     },
   });
 
-  const conversationMiles = useConversation({
-    sessionConfig: sessionConfigMiles,
+  const conversationDavid = useConversation({
+    sessionConfig: sessionConfigDavid,
     onDisconnect: () => {
-      console.log("Miles Disconnected! cleaning up...");
+      console.log("David Disconnected! cleaning up...");
       endSession();
     },
   });
+
+  /**
+   * Start session for a character and wait for session.created event.
+   * Mute the input of conversation so it doesn't capture audio from microphone.
+   * Log all events for debugging.
+   * Track which character is speaking using output_audio_buffer events.
+   * Send this character's transcript to the other character.
+   *
+   * @param sessionConfig - The session configuration for the character.
+   * @param conversation - The conversation instance for the character.
+   * @param characterName - The ID of the character.
+   * @param otherConversation - The conversation instance for the other character.
+   * @returns
+   */
+  const startCharacterSession = async (
+    sessionConfig: SessionConfig,
+    conversation: UseConversationReturnType,
+    characterName: CharacterName,
+    otherConversation: UseConversationReturnType,
+    setSpeaking: (speaking: boolean) => void
+  ) => {
+    const ephemeralKey = await getEphemeralKeyFromServer(sessionConfig);
+
+    await conversation.startSession(ephemeralKey);
+
+    const sessionCreatedPromise: Promise<UseConversationReturnType> = new Promise((resolve) => {
+      conversation.on("session.created", () => {
+        conversation.toggleMute(); // mute the input of conversation so it doesn't capture audio from microphone
+        resolve(conversation);
+      });
+    });
+
+    // Log all events for debugging
+    const debugEvents = [
+      "output_audio_buffer.started",
+      "output_audio_buffer.stopped",
+      "output_audio_buffer.commit",
+      "response.audio_transcript.delta",
+      "response.audio.delta",
+      "conversation.item.input_audio_transcription.completed",
+    ];
+    debugEvents.forEach((event) => {
+      conversation.on(event, (data) => {
+        console.log(`${characterName === "sophie" ? "🔵" : "🟢"} ${characterName} Event: ${event}`, data);
+      });
+    });
+
+    conversation.on("response.done", (event) => {
+      const content = event.response.output[0].content[0];
+      const transcript = content.transcript;
+      if (typeof transcript === "string") {
+        queuedTranscriptRef.current[characterName] = transcript;
+        console.log(`stored ${characterName} transcript:`, transcript);
+      }
+    });
+
+    // Track which character is speaking using output_audio_buffer events
+    conversation.on("output_audio_buffer.started", () => {
+      console.log(`🗣️ ${characterName} started speaking`);
+      setSpeaking(true);
+    });
+
+    conversation.on("output_audio_buffer.stopped", () => {
+      const transcript = queuedTranscriptRef.current[characterName];
+      console.log(`${characterName} stopped speaking... sending "${transcript}" to the other character`);
+
+      setSpeaking(false);
+
+      // Send this character's transcript to the other character
+      otherConversation.sendText(transcript);
+    });
+
+    conversation.on("error", console.error);
+
+    return sessionCreatedPromise;
+  };
 
   const startSession = async () => {
     try {
-      // get ephemeral keys for both sessions
-      const [ephemeralKeyOne, ephemeralKeyTwo] = await Promise.all([
-        getEphemeralKeyFromServer(sessionConfigMaya),
-        getEphemeralKeyFromServer(sessionConfigMiles),
+      // Start David session first and wait for session.created event
+      await Promise.all([
+        startCharacterSession(sessionConfigDavid, conversationDavid, "david", conversationSophie, setDavidSpeaking),
+        startCharacterSession(sessionConfigSophie, conversationSophie, "sophie", conversationDavid, setSophieSpeaking),
       ]);
+      setSessionCreated(true);
 
-      // start session for Miles and wait for session.created event
-      await conversationMiles.startSession(ephemeralKeyTwo);
-      const milesSessionCreatedPromise = new Promise((resolve) => {
-        conversationMiles.on("session.created", () => {
-          conversationMiles.toggleMute(); // mute the input of conversation Miles so it doesn't capture audio from microphone
-          resolve(true);
-        });
-      });
-      await milesSessionCreatedPromise;
-
-      // now we can start the session for Maya
-      await conversationMaya.startSession(ephemeralKeyOne);
-      conversationMaya.on("session.created", () => {
-        conversationMaya.toggleMute(); // mute the input of conversation Maya so it doesn't capture audio from microphone
-        setSessionCreated(true);
-      });
-
-      // Log all events for debugging
-      const debugEvents = [
-        "output_audio_buffer.started",
-        "output_audio_buffer.stopped",
-        "output_audio_buffer.commit",
-        "response.audio_transcript.delta",
-        "response.audio.delta",
-        "conversation.item.input_audio_transcription.completed",
-      ];
-      debugEvents.forEach((event) => {
-        conversationMaya.on(event, (data) => {
-          console.log(`🔵 Maya Event: ${event}`, data);
-        });
-        conversationMiles.on(event, (data) => {
-          console.log(`🟢 Miles Event: ${event}`, data);
-        });
-      });
-
-      let queuedMayaTranscript = "";
-      conversationMaya.on("response.done", (event) => {
-        const content = event.response.output[0].content[0];
-        const transcript = content.transcript;
-        if (typeof transcript === "string") {
-          queuedMayaTranscript = transcript;
-          console.log("stored Maya transcript", transcript);
-        }
-      });
-
-      // Track Maya speaking using output_audio_buffer events
-      conversationMaya.on("output_audio_buffer.started", () => {
-        console.log("🗣️ Maya started speaking");
-        setMayaSpeaking(true);
-      });
-
-      conversationMaya.on("output_audio_buffer.stopped", () => {
-        console.log(`maya stopped speaking... sending ${queuedMayaTranscript} to Miles`);
-        console.log("🔇 Maya stopped speaking");
-        setMayaSpeaking(false);
-        conversationMiles.sendText(queuedMayaTranscript); // todo: fix
-      });
-
-      let queuedMilesTranscript = "";
-      conversationMiles.on("response.done", (event) => {
-        const content = event.response.output[0].content[0];
-        const transcript = content.transcript;
-        if (typeof transcript === "string") {
-          queuedMilesTranscript = transcript;
-          console.log("stored Miles transcript", transcript);
-        }
-      });
-
-      // Track Miles speaking using output_audio_buffer events
-      conversationMiles.on("output_audio_buffer.started", () => {
-        console.log("🗣️ Miles started speaking");
-        setMilesSpeaking(true);
-      });
-
-      conversationMiles.on("output_audio_buffer.stopped", () => {
-        console.log(`miles stopped speaking... sending ${queuedMilesTranscript} to Maya`);
-        console.log("🔇 Miles stopped speaking");
-        setMilesSpeaking(false);
-        conversationMaya.sendText(queuedMilesTranscript);
-      });
+      // make Sophie speak first
+      await conversationSophie.speak("Hey David, how are you doing?");
     } catch (error) {
       console.error("Error starting session", error);
     }
@@ -157,13 +162,13 @@ export default function Home() {
 
   const endSession = async () => {
     try {
-      await Promise.all([conversationMaya.endSession(), conversationMiles.endSession()]);
+      await Promise.all([conversationSophie.endSession(), conversationDavid.endSession()]);
     } catch (error) {
       console.error("Error ending session", error);
     } finally {
       setSessionCreated(false);
-      setMayaSpeaking(false);
-      setMilesSpeaking(false);
+      setSophieSpeaking(false);
+      setDavidSpeaking(false);
     }
   };
 
@@ -204,10 +209,10 @@ export default function Home() {
               {/* Character Avatars */}
               <div className="flex justify-center items-center gap-16 mb-8">
                 <CharacterAvatar
-                  name="Maya"
-                  initial="Ma"
+                  name="Sophie"
+                  initial="S"
                   sessionStarted={sessionCreated}
-                  isSpeaking={mayaSpeaking}
+                  isSpeaking={sophieSpeaking}
                   speakingClasses="border-purple-400 shadow-purple-300 bg-gradient-to-br from-purple-500 to-pink-500 shadow-2xl scale-110"
                   silentClasses="border-purple-200 shadow-purple-100 bg-gradient-to-br from-purple-400 to-pink-400"
                   dotClasses="bg-purple-400"
@@ -216,10 +221,10 @@ export default function Home() {
                 <div className="hidden sm:block w-px h-16 bg-gradient-to-b from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
 
                 <CharacterAvatar
-                  name="Miles"
-                  initial="Mi"
+                  name="David"
+                  initial="D"
                   sessionStarted={sessionCreated}
-                  isSpeaking={milesSpeaking}
+                  isSpeaking={davidSpeaking}
                   speakingClasses="border-blue-400 shadow-blue-300 bg-gradient-to-br from-blue-500 to-cyan-500 shadow-2xl scale-110"
                   silentClasses="border-blue-200 shadow-blue-100 bg-gradient-to-br from-blue-400 to-cyan-400"
                   dotClasses="bg-blue-400"
@@ -231,7 +236,7 @@ export default function Home() {
               </h2>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
                 {sessionCreated
-                  ? "Listen to Maya and Miles talking to each other"
+                  ? "Listen to Sophie and David talking to each other"
                   : "Click the button below to begin the conversation"}
               </p>
 

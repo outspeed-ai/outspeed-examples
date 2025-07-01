@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@outspeed/client": "^0.1.15",
-    "@outspeed/react": "^1.0.18",
+    "@outspeed/client": "^0.1.18",
+    "@outspeed/react": "^1.0.21",
     "@tailwindcss/vite": "^4.1.8",
     "axios": "^1.9.0",
     "react": "^19.1.0",

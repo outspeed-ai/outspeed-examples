@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@outspeed/client": "^0.1.17",
-    "@outspeed/react": "^1.0.20",
+    "@outspeed/client": "^0.1.18",
+    "@outspeed/react": "^1.0.21",
     "axios": "^1.10.0",
     "next": "15.3.4",
     "react": "^19.0.0",
