@@ -1,6 +1,6 @@
 "use client";
 
-import { type SessionConfig, providers } from "@outspeed/client";
+import { type SessionConfig } from "@outspeed/client";
 import { useConversation } from "@outspeed/react";
 import Image from "next/image";
 import { useRef, useState } from "react";
