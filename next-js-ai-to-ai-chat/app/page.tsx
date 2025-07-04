@@ -1,6 +1,6 @@
 "use client";
 
-import { type SessionConfig } from "@outspeed/client";
+import { ConversationEventType, type SessionConfig } from "@outspeed/client";
 import { useConversation } from "@outspeed/react";
 import Image from "next/image";
 import { useRef, useState } from "react";
@@ -53,7 +53,7 @@ export default function Home() {
   });
 
   const conversationSophie = useConversation({
-    sessionConfig: sessionConfigSophie,
+    micMuted: true, // mute the mic so that it doesn't capture user's audio
     onDisconnect: () => {
       console.log("Sophie Disconnected! cleaning up...");
       endSession();
@@ -61,7 +61,7 @@ export default function Home() {
   });
 
   const conversationDavid = useConversation({
-    sessionConfig: sessionConfigDavid,
+    micMuted: true, // mute the mic so that it doesn't capture user's audio
     onDisconnect: () => {
       console.log("David Disconnected! cleaning up...");
       endSession();
@@ -90,22 +90,18 @@ export default function Home() {
   ) => {
     const ephemeralKey = await getEphemeralKeyFromServer(sessionConfig);
 
-    await conversation.startSession(ephemeralKey);
-
     const sessionCreatedPromise: Promise<UseConversationReturnType> = new Promise((resolve) => {
       conversation.on("session.created", () => {
-        conversation.toggleMute(); // mute the input of conversation so it doesn't capture audio from microphone
         resolve(conversation);
       });
     });
 
     // Log all events for debugging
-    const debugEvents = [
+    const debugEvents: ConversationEventType[] = [
       "output_audio_buffer.started",
       "output_audio_buffer.stopped",
-      "output_audio_buffer.commit",
+      "output_audio_buffer.cleared",
       "response.audio_transcript.delta",
-      "response.audio.delta",
       "conversation.item.input_audio_transcription.completed",
     ];
     debugEvents.forEach((event) => {
@@ -140,6 +136,8 @@ export default function Home() {
     });
 
     conversation.on("error", console.error);
+
+    await conversation.startSession(ephemeralKey);
 
     return sessionCreatedPromise;
   };
