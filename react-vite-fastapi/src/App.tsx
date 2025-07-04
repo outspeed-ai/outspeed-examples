@@ -51,15 +51,12 @@ export default function App() {
   const [sessionCreated, setSessionCreated] = useState(false);
 
   const conversation = useConversation({
-    sessionConfig: sessionConfig,
     clientTools, // this is a mapping of tool names and actual functions that would be called when the model uses the tool
   });
 
   const startSession = async () => {
     try {
       const ephemeralKey = await getEphemeralKeyFromServer(sessionConfig);
-
-      await conversation.startSession(ephemeralKey);
 
       // call after startSession to ensure the session is created
       conversation.on("session.created", (event) => {
@@ -72,7 +69,7 @@ export default function App() {
         console.log("event received from server", event);
       });
 
-      setSessionCreated(true);
+      await conversation.startSession(ephemeralKey);
     } catch (error) {
       console.error("Error starting session", error);
     }

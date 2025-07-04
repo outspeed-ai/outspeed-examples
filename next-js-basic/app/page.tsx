@@ -5,11 +5,7 @@ import { useConversation } from "@outspeed/react";
 import Image from "next/image";
 import { useState } from "react";
 
-import {
-  CLIENT_TOOL_SCHEMAS,
-  clientTools,
-  systemTools,
-} from "@/app/config/tools";
+import { CLIENT_TOOL_SCHEMAS, clientTools, systemTools } from "@/app/config/tools";
 
 const getEphemeralKeyFromServer = async (config: SessionConfig) => {
   const tokenResponse = await fetch("/api/token", {
@@ -52,7 +48,6 @@ export default function Home() {
   const [sessionCreated, setSessionCreated] = useState(false);
 
   const conversation = useConversation({
-    sessionConfig: sessionConfig,
     clientTools, // this is a mapping of tool names and actual functions that would be called when the model uses the tool
     onDisconnect: () => {
       console.log("Disconnected! cleaning up...");
@@ -64,9 +59,6 @@ export default function Home() {
     try {
       const ephemeralKey = await getEphemeralKeyFromServer(sessionConfig);
 
-      await conversation.startSession(ephemeralKey);
-
-      // call after startSession to ensure the session is created
       conversation.on("session.created", (event) => {
         console.log("session.created", event);
         setSessionCreated(true);
@@ -77,7 +69,7 @@ export default function Home() {
         console.log("event received from server", event);
       });
 
-      setSessionCreated(true);
+      await conversation.startSession(ephemeralKey);
     } catch (error) {
       console.error("Error starting session", error);
     }
@@ -110,31 +102,14 @@ export default function Home() {
           {/* Header */}
           <div className="text-center space-y-4">
             <div className="flex justify-center items-center gap-3 mb-6">
-              <Image
-                src="/outspeed-logo.png"
-                alt="Outspeed logo"
-                width={32}
-                height={32}
-                priority
-              />
+              <Image src="/outspeed-logo.png" alt="Outspeed logo" width={32} height={32} priority />
               <span className="text-2xl text-gray-400">×</span>
-              <Image
-                className="dark:invert"
-                src="/next.svg"
-                alt="Next.js logo"
-                width={120}
-                height={26}
-                priority
-              />
+              <Image className="dark:invert" src="/next.svg" alt="Next.js logo" width={120} height={26} priority />
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              AI Voice Assistant
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">AI Voice Assistant</h1>
             <p className="text-gray-600 dark:text-gray-300 max-w-lg mx-auto">
-              {
-                "Powered by Outspeed's Live API with voice capabilities and intelligent tools"
-              }
+              {"Powered by Outspeed's Live API with voice capabilities and intelligent tools"}
             </p>
           </div>
 
@@ -149,19 +124,13 @@ export default function Home() {
                 }`}
               >
                 <div
-                  className={`w-2 h-2 rounded-full ${
-                    sessionCreated
-                      ? "bg-green-500 animate-pulse"
-                      : "bg-gray-400"
-                  }`}
+                  className={`w-2 h-2 rounded-full ${sessionCreated ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}
                 ></div>
                 {sessionCreated ? "Session Active" : "Ready to Connect"}
               </div>
 
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                {sessionCreated
-                  ? "Voice Assistant is Live"
-                  : "Start Your Session"}
+                {sessionCreated ? "Voice Assistant is Live" : "Start Your Session"}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
                 {sessionCreated
@@ -197,18 +166,14 @@ export default function Home() {
 function ToolsList() {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
-        Available Tools
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">Available Tools</h3>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Client Tools */}
         <div>
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <h4 className="font-medium text-gray-900 dark:text-white">
-              Client Tools
-            </h4>
+            <h4 className="font-medium text-gray-900 dark:text-white">Client Tools</h4>
             <div className="relative group inline-block">
               <span className="ml-1 cursor-pointer w-4 h-4 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300">
                 i
@@ -220,13 +185,8 @@ function ToolsList() {
           </div>
           <div className="space-y-2">
             {Object.keys(CLIENT_TOOL_SCHEMAS).map((toolName) => (
-              <div
-                key={toolName}
-                className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3"
-              >
-                <div className="font-medium text-sm text-gray-900 dark:text-white mb-1">
-                  {toolName}
-                </div>
+              <div key={toolName} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                <div className="font-medium text-sm text-gray-900 dark:text-white mb-1">{toolName}</div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">
                   {CLIENT_TOOL_SCHEMAS[toolName].description}
                 </div>
@@ -239,16 +199,13 @@ function ToolsList() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <h4 className="font-medium text-gray-900 dark:text-white">
-              System Tools
-            </h4>
+            <h4 className="font-medium text-gray-900 dark:text-white">System Tools</h4>
             <div className="relative group inline-block">
               <span className="ml-1 cursor-pointer w-4 h-4 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300">
                 i
               </span>
               <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 p-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-20">
-                Predefined tools (end_call and skip_turn) that run on the
-                Outspeed backend.
+                Predefined tools (end_call and skip_turn) that run on the Outspeed backend.
               </div>
             </div>
           </div>
@@ -256,16 +213,9 @@ function ToolsList() {
             {systemTools
               .filter((tool) => tool.enabled !== false)
               .map((tool) => (
-                <div
-                  key={tool.name}
-                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3"
-                >
-                  <div className="font-medium text-sm text-gray-900 dark:text-white">
-                    {tool.name}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    Backend system tool
-                  </div>
+                <div key={tool.name} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <div className="font-medium text-sm text-gray-900 dark:text-white">{tool.name}</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Backend system tool</div>
                 </div>
               ))}
           </div>
