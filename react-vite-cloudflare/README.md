@@ -67,8 +67,8 @@ A React app demonstrating real-time voice conversations using Outspeed's Voice A
 
 
 > [!NOTE]
-> Restart your Cloudflare Pages instance so it picks up environment changes
-> Use `npm run deploy` to trigger restart.
+> Restart your Cloudflare Pages instance so it picks up environment changes.
+> Run `npm run deploy` to restart.
 
 ### Using GitHub
 
