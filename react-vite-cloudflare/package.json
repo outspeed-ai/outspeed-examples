@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "wrangler:dev": "npx wrangler pages dev",
+    "wrangler:dev": "npx concurrently \"vite build --watch\" \"npx wrangler pages dev ./dist --live-reload\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build && npx wrangler pages deploy ./dist"
+    "deploy": "npm run build && npx wrangler pages deploy"
   },
   "dependencies": {
     "@outspeed/client": "^0.1.19",
@@ -27,6 +27,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react-swc": "^3.10.2",
+    "concurrently": "^9.2.0",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
