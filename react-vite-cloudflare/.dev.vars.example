@@ -1,1 +1,3 @@
+# backend / cloudflare function vars
+
 OUTSPEED_API_KEY=<your-outspeed-api-key>

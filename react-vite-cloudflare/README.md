@@ -6,7 +6,7 @@ A React app demonstrating real-time voice conversations using Outspeed's Voice A
 
 - Real-time voice conversations with AI
 - Semantic voice activity detection
-- Serverless backend with global edge deployment
+- Serverless backend with [cloudflare functions](https://developers.cloudflare.com/pages/functions/get-started/)
 - Client-side tools (weather functionality)
 
 ## Requirements
@@ -64,7 +64,16 @@ The app will be available at `http://localhost:8788`
 
 ### Manual Deployment
 
-Run `npm run deploy`. It uses [`wrangler pages deploy` command](https://developers.cloudflare.com/workers/wrangler/commands/#deploy-1). It will also deploy the secrets from `.dev.vars` file for you, which you can edit in the Cloudflare Pages dashboard if you need to change them.
+1. Run `npm run deploy`. It uses [`wrangler pages deploy` command](https://developers.cloudflare.com/workers/wrangler/commands/#deploy-1).
+2. Add environment variables. Make sure that there's a `.dev.vars` file for functions and a `.env` file for frontend.
+
+   ```bash
+   npx wrangler pages secret bulk .dev.vars
+   ```
+
+   ```bash
+   npx wrangler pages secret bulk .env
+   ```
 
 ## Usage
 
