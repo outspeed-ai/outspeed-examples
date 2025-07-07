@@ -8,7 +8,8 @@
     "wrangler:dev": "npx wrangler pages dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && npx wrangler pages deploy ./dist"
   },
   "dependencies": {
     "@outspeed/client": "^0.1.19",
