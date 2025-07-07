@@ -52,7 +52,7 @@ A React app demonstrating real-time voice conversations using Outspeed's Voice A
 
 ## Deployment
 
-### Cloudflare Pages - Manual Deployment
+### Using wrangler CLI
 
 1. Run `npm run deploy`. It uses [`wrangler pages deploy` command](https://developers.cloudflare.com/workers/wrangler/commands/#deploy-1).
 2. Add environment variables. Make sure that there's a `.dev.vars` file for functions and a `.env` file for frontend.
@@ -65,7 +65,7 @@ A React app demonstrating real-time voice conversations using Outspeed's Voice A
    npx wrangler pages secret bulk .env
    ```
 
-### Cloudflare Pages - Git Integration
+### Using GitHub
 
 1. Push code to Git repository
 2. Connect to Cloudflare Pages
@@ -75,6 +75,8 @@ A React app demonstrating real-time voice conversations using Outspeed's Voice A
 4. [Set environment variables](https://developers.cloudflare.com/pages/configuration/build-configuration/#environment-variables):
    - `OUTSPEED_API_KEY` - (for backend)
    - `VITE_OPEN_WEATHER_MAP_API_KEY` - (for frontend to use get_weather tool)
+
+For more details, see [Deploy a Vite 3 project](https://developers.cloudflare.com/pages/framework-guides/deploy-a-vite3-project/).
 
 ## Usage
 
