@@ -64,10 +64,7 @@ The app will be available at `http://localhost:8788`
 
 ### Manual Deployment
 
-1. Run `npm run deploy`
-2. [Set environment variables](https://developers.cloudflare.com/pages/configuration/build-configuration/#environment-variables):
-   - `OUTSPEED_API_KEY` - (for backend)
-   - `VITE_OPEN_WEATHER_MAP_API_KEY` - (for frontend to use get_weather tool)
+Run `npm run deploy`. It uses [`wrangler pages deploy` command](https://developers.cloudflare.com/workers/wrangler/commands/#deploy-1). It will also deploy the secrets from `.dev.vars` file for you, which you can edit in the Cloudflare Pages dashboard if you need to change them.
 
 ## Usage
 
