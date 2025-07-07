@@ -58,30 +58,30 @@ The app will be available at `http://localhost:8788`
 3. Configure build settings:
    - **Build command**: `npm run build`
    - **Build output directory**: `dist`
-4. Set environment variables:
-   - `OUTSPEED_API_KEY`
-   - `VITE_OPEN_WEATHER_MAP_API_KEY`
+4. [Set environment variables](https://developers.cloudflare.com/pages/configuration/build-configuration/#environment-variables):
+   - `OUTSPEED_API_KEY` - (for backend)
+   - `VITE_OPEN_WEATHER_MAP_API_KEY` - (for frontend to use get_weather tool)
 
 ### Manual Deployment
 
-```bash
-npm run build
-npx wrangler pages deploy dist --project-name=outspeed-voice-demo
-```
+1. Run `npm run deploy`
+2. [Set environment variables](https://developers.cloudflare.com/pages/configuration/build-configuration/#environment-variables):
+   - `OUTSPEED_API_KEY` - (for backend)
+   - `VITE_OPEN_WEATHER_MAP_API_KEY` - (for frontend to use get_weather tool)
 
 ## Usage
 
 1. Open the app
 2. Click "Start Session" to begin voice conversation
 3. Speak with the AI assistant
-4. Click "Stop Session" to end
+4. Click "End Session" to end
 
 The app uses semantic voice activity detection to intelligently detect when you've finished speaking.
 
 ## Architecture
 
 - **Frontend**: React + Vite with Outspeed SDK (deployed to Cloudflare Pages)
-- **Backend**: Cloudflare Functions (`/functions/token.js`)
+- **Backend**: Cloudflare Functions ([`/functions/token.js`](./functions/token.js))
 
 ## API
 
