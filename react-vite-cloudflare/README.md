@@ -65,6 +65,11 @@ A React app demonstrating real-time voice conversations using Outspeed's Voice A
    npx wrangler pages secret bulk .env
    ```
 
+
+> [!NOTE]
+> Restart your Cloudflare Pages instance so it picks up environment changes
+> Use `npm run deploy` to trigger restart.
+
 ### Using GitHub
 
 1. Push code to Git repository
