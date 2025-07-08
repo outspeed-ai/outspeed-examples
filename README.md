@@ -10,6 +10,10 @@ Voice AI examples using Outspeed's SDKs and Live API. This monorepo contains mul
 
 React (Vite) + FastAPI application demonstrating real-time voice conversations with semantic voice activity detection. Features a React client with FastAPI backend and weather tool integration.
 
+#### ☁️ [react-vite-cloudflare](./react-vite-cloudflare/)
+
+React (Vite) application deployed on Cloudflare Pages demonstrating real-time voice conversations with semantic voice activity detection. Features a React client with Cloudflare Functions backend and weather tool integration.
+
 #### ⚛️ [create-react-app-fastapi](./create-react-app-fastapi/)
 
 Voice chat application built with Create React App frontend and FastAPI backend. A simpler example perfect for getting started with React and Python integration.
