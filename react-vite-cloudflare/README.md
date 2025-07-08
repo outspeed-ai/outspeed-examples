@@ -54,7 +54,17 @@ A React app demonstrating real-time voice conversations using Outspeed's Voice A
 
 ### Using wrangler CLI
 
-1. Run `npm run deploy`. It uses [`wrangler pages deploy` command](https://developers.cloudflare.com/workers/wrangler/commands/#deploy-1).
+1. Create a new project on cloudflare using
+
+   ```bash
+   npx wrangler pages project create outspeed-react-vite-cloudflare-example
+   ```
+
+   Note: `outspeed-react-vite-cloudflare-example` is the name that's configured in `wrangler.jsonc`.
+
+   > [!NOTE] > `outspeed-react-vite-cloudflare-example` is the name that's configured in `wrangler.jsonc`,
+   > so if you change it while running the create command, you need to update it in `wrangler.jsonc` as well.
+
 2. Add environment variables. Make sure that there's a `.dev.vars` file for functions and a `.env` file for frontend.
 
    ```bash
@@ -65,10 +75,7 @@ A React app demonstrating real-time voice conversations using Outspeed's Voice A
    npx wrangler pages secret bulk .env
    ```
 
-
-> [!NOTE]
-> Restart your Cloudflare Pages instance so it picks up environment changes.
-> Run `npm run deploy` to restart.
+3. Run `npm run deploy`. It uses [`wrangler pages deploy` command](https://developers.cloudflare.com/workers/wrangler/commands/#deploy-1).
 
 ### Using GitHub
 
