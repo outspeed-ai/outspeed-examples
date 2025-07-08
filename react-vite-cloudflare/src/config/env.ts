@@ -5,5 +5,5 @@ const envSchema = z.object({
 });
 
 export const env = envSchema.parse({
-  OPEN_WEATHER_MAP_API_KEY: import.meta.env.VITE_PUBLIC_OPEN_WEATHER_MAP_API_KEY,
+  OPEN_WEATHER_MAP_API_KEY: import.meta.env.VITE_OPEN_WEATHER_MAP_API_KEY,
 });
