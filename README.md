@@ -1,6 +1,6 @@
 # Outspeed Examples
 
-Voice AI examples using Outspeed's SDKs and Live API. This monorepo contains multiple implementation examples across different frameworks and platforms.
+Voice AI examples using Outspeed's SDKs and API. This monorepo contains multiple implementation examples across different frameworks and platforms.
 
 ## Examples
 
@@ -20,7 +20,7 @@ Voice chat application built with Create React App frontend and FastAPI backend.
 
 #### 🔥 [next-js-basic](./next-js-basic/)
 
-Basic Next.js AI voice assistant with modern UI, demonstrating core voice interaction capabilities using Outspeed's Live API.
+Basic Next.js AI voice assistant with modern UI, demonstrating core voice interaction capabilities using Outspeed API.
 
 #### 🤖 [next-js-ai-to-ai-chat](./next-js-ai-to-ai-chat/)
 

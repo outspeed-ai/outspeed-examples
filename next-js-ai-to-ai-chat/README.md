@@ -1,6 +1,6 @@
 # Outspeed AI-to-AI Voice Chat
 
-A modern AI-to-AI voice chat application built with Next.js and powered by Outspeed's Live API. This application demonstrates how two AI characters can have a natural voice conversation with each other.
+A modern AI-to-AI voice chat application built with Next.js and powered by Outspeed API. This application demonstrates how two AI characters can have a natural voice conversation with each other.
 
 ## Features
 

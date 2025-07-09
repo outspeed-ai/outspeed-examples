@@ -60,10 +60,9 @@ A React app demonstrating real-time voice conversations using Outspeed's Voice A
    npx wrangler pages project create outspeed-react-vite-cloudflare-example
    ```
 
-   Note: `outspeed-react-vite-cloudflare-example` is the name that's configured in `wrangler.jsonc`.
-
-   > [!NOTE] `outspeed-react-vite-cloudflare-example` is the name that's configured in `wrangler.jsonc`,
-   > so if you change it while running the create command, you need to update it in `wrangler.jsonc` as well.
+> [!NOTE]
+> The name `outspeed-react-vite-cloudflare-example` is configured in `wrangler.jsonc` file,
+> so if you change it while running the create command above, you need to update it in `wrangler.jsonc` as well.
 
 2. Add environment variables. Make sure that there's a `.dev.vars` file for functions and a `.env` file for frontend.
 

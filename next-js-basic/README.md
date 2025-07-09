@@ -1,6 +1,6 @@
 # Outspeed AI Voice Assistant
 
-A modern AI voice assistant built with Next.js and powered by Outspeed's Live API. This application demonstrates how to integrate voice capabilities, client-side tools, and system tools into a seamless conversational experience.
+A modern AI voice assistant built with Next.js and powered by Outspeed API. This application demonstrates how to integrate voice capabilities, client-side tools, and system tools into a seamless conversational experience.
 
 ## Features
 

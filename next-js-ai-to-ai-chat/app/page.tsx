@@ -184,7 +184,7 @@ export default function Home() {
 
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Voice AI-to-AI Chat</h1>
             <p className="text-gray-600 dark:text-gray-300 max-w-lg mx-auto">
-              {"Powered by Outspeed's Live API with voice capabilities"}
+              {"Powered by Outspeed API with voice capabilities"}
             </p>
           </div>
 
