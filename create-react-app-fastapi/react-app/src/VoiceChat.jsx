@@ -16,6 +16,7 @@ const getEphemeralKeyFromServer = async (config) => {
   return data.client_secret.value;
 };
 
+/** @type {import("@outspeed/client").SessionConfig} */
 const sessionConfig = {
   model: "outspeed-v1",
   instructions: "Speak directly and briefly. Respond with concise, helpful answers.",

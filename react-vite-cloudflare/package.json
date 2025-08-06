@@ -12,8 +12,8 @@
     "deploy": "npm run build && npx wrangler pages deploy"
   },
   "dependencies": {
-    "@outspeed/client": "^0.1.19",
-    "@outspeed/react": "^1.0.22",
+    "@outspeed/client": "latest",
+    "@outspeed/react": "latest",
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.10.0",
     "react": "^19.1.0",
