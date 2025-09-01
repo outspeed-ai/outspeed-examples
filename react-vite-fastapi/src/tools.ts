@@ -1,4 +1,4 @@
-import { type FunctionDefinition } from "@outspeed/client";
+import { type ClientTool, type FunctionDefinition, type SystemToolConfig } from "@outspeed/client";
 import axios from "axios";
 
 import { env } from "@/config/env";
@@ -45,7 +45,7 @@ export const CLIENT_TOOL_SCHEMAS: Record<string, FunctionDefinition> = {
  *
  * @returns The weather data
  */
-export async function getWeather({ city }: { city: string }) {
+const getWeather: ClientTool<{ city: string }> = async ({ city }) => {
   try {
     if (!env.OPEN_WEATHER_MAP_API_KEY) {
       throw new Error("OPEN_WEATHER_MAP_API_KEY is not set");
@@ -61,7 +61,7 @@ export async function getWeather({ city }: { city: string }) {
     console.error(error);
     return error instanceof Error ? error.message : "Unable to get weather";
   }
-}
+};
 
 /**
  * This function just opens a new browser tab. It's not very useful,
@@ -70,7 +70,7 @@ export async function getWeather({ city }: { city: string }) {
  *
  * @returns A message indicating whether the browser tab was opened successfully
  */
-export function openBrowserTab({ url }: { url: string }) {
+const openBrowserTab: ClientTool<{ url: string }> = ({ url }) => {
   try {
     console.log("Opening browser tab", url);
 
@@ -84,7 +84,7 @@ export function openBrowserTab({ url }: { url: string }) {
     console.error(error);
     return error instanceof Error ? error.message : "Unable to open browser tab";
   }
-}
+};
 
 /**
  * This is a mapping of tool names and actual functions that would be called when the model uses the tool
@@ -93,3 +93,8 @@ export const clientTools = {
   get_weather: getWeather,
   open_browser_tab: openBrowserTab,
 };
+
+/**
+ * System tools are pre-defined tools that will be executed on the server.
+ */
+export const systemTools: SystemToolConfig[] = [{ name: "end_call", enabled: true }];

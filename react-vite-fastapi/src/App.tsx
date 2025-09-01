@@ -2,7 +2,7 @@ import { type SessionConfig } from "@outspeed/client";
 import { useConversation } from "@outspeed/react";
 import { useState } from "react";
 
-import { CLIENT_TOOL_SCHEMAS, clientTools } from "./tools";
+import { CLIENT_TOOL_SCHEMAS, clientTools, systemTools } from "./tools";
 
 import Logo from "./assets/react.svg";
 
@@ -44,6 +44,7 @@ const sessionConfig: SessionConfig = {
     type: "semantic_vad",
   },
   tools: Object.values(CLIENT_TOOL_SCHEMAS), // this makes the tools available to the model
+  system_tools: systemTools,
   first_message: "Hello, how can I assist you with Outspeed today?",
 };
 
