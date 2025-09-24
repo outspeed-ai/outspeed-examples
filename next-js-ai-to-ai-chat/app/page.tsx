@@ -137,7 +137,7 @@ export default function Home() {
 
     conversation.on("error", console.error);
 
-    await conversation.startSession(ephemeralKey);
+    await conversation.startSession(ephemeralKey, "next-js-ai-to-ai-eg");
 
     return sessionCreatedPromise;
   };

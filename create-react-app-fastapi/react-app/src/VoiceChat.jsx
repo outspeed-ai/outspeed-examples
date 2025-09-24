@@ -50,7 +50,7 @@ export default function VoiceChat() {
         setIsConnecting(false);
       });
 
-      await conversation.startSession(ephemeralKey);
+      await conversation.startSession(ephemeralKey, "cra-example");
     } catch (error) {
       console.error("Error starting session:", error);
       setIsConnecting(false);

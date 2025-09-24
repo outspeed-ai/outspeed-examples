@@ -70,7 +70,7 @@ export default function Home() {
         console.log("event received from server", event);
       });
 
-      await conversation.startSession(ephemeralKey);
+      await conversation.startSession(ephemeralKey, "react-vite-cf-eg");
     } catch (error) {
       console.error("Error starting session", error);
     }
